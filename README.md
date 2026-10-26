@@ -24,6 +24,8 @@ https://hookpost.hookstep.in/api/mcp
 
 Your workspace API key goes in an `Authorization: Bearer` header. Copy the key from **Settings → Developers** in Hookpost. For a client that cannot send headers, put the key in the path instead: `https://hookpost.hookstep.in/api/mcp/YOUR_API_KEY`.
 
+Behind a gateway that keeps the `Authorization` header for itself, such as Smithery, send the key as `x-hookpost-api-key: YOUR_API_KEY` instead (the raw key; a `Bearer ` prefix is also accepted). If a request carries both headers, `Authorization` wins.
+
 Treat the key like a password. It gives full access to your workspace's channels and posts, so keep it out of shared configs and public repos.
 
 ## Set it up in your assistant
