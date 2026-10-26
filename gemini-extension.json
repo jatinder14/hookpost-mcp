@@ -1,0 +1,23 @@
+{
+  "name": "hookpost",
+  "version": "1.0.0",
+  "description": "Hookpost by Hookstep: draft and schedule social media posts on your connected channels from Gemini CLI.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "hookpost": {
+      "description": "Hookpost hosted MCP server: list channels, read network rules, save drafts and scheduled posts.",
+      "httpUrl": "https://hookpost.hookstep.in/api/mcp",
+      "headers": {
+        "Authorization": "Bearer $HOOKPOST_API_KEY"
+      }
+    }
+  },
+  "settings": [
+    {
+      "name": "Hookpost API key",
+      "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Standard or Pro plan).",
+      "envVar": "HOOKPOST_API_KEY",
+      "sensitive": true
+    }
+  ]
+}
