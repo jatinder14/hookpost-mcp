@@ -100,7 +100,7 @@ A Hookpost app for ChatGPT is not available yet. Until it is, draft in ChatGPT a
 Install this repo as an extension. It asks for your API key once and keeps it in your system keychain:
 
 ```bash
-gemini extensions install https://github.com/hookstep/hookpost-mcp
+gemini extensions install https://github.com/jatinder14/hookpost-mcp
 ```
 
 Or add the server by hand to `~/.gemini/settings.json`. Use `httpUrl`, not `url` (in Gemini CLI, `url` means an SSE server):
