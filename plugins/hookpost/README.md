@@ -39,4 +39,4 @@ Email support@hookstep.in or use https://hookpost.hookstep.in/contact. Setup for
 
 ## Licence
 
-Proprietary. Copyright (c) 2026 Hookstep. See [LICENSE](LICENSE).
+MIT. Copyright (c) 2026 Hookstep. See [LICENSE](LICENSE).

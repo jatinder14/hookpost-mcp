@@ -3,7 +3,7 @@
   "name": "in.hookstep/hookpost",
   "title": "Hookpost",
   "description": "Draft and schedule social media posts on your connected channels from Claude or any MCP client.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "websiteUrl": "https://hookpost.hookstep.in/mcp",
   "repository": {
     "url": "https://github.com/jatinder14/hookpost-mcp",

@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-hookpost",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "n8n community node for Hookpost - schedule and publish social media posts across social networks",
   "keywords": [
     "n8n-community-node-package",
@@ -9,9 +9,17 @@
     "social media",
     "scheduling"
   ],
-  "license": "UNLICENSED",
+  "license": "MIT",
   "author": "Hookstep",
   "homepage": "https://hookpost.hookstep.in/docs/public-api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jatinder14/hookpost-mcp.git",
+    "directory": "n8n-node"
+  },
+  "bugs": {
+    "url": "https://github.com/jatinder14/hookpost-mcp/issues"
+  },
   "main": "index.js",
   "scripts": {
     "build": "tsc && node copy-assets.js",

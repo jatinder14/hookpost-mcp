@@ -85,4 +85,4 @@ The API key grants full access to your organisation's channels and posts. Keep i
 
 ## Licence
 
-Proprietary (`UNLICENSED`). Copyright (c) 2026 Hookstep. All rights reserved.
+MIT. Copyright (c) 2026 Hookstep. See [LICENSE](https://github.com/jatinder14/hookpost-mcp/blob/main/LICENSE).

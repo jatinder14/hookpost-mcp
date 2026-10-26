@@ -196,4 +196,4 @@ Email support@hookstep.in, or open an issue here. Docs: https://hookpost.hookste
 
 ## Licence
 
-Proprietary. Copyright (c) 2026 Hookstep. All rights reserved. See [LICENSE](LICENSE).
+MIT. Copyright (c) 2026 Hookstep. See [LICENSE](LICENSE).

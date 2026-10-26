@@ -1,6 +1,6 @@
 {
   "name": "hookpost",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Hookpost CLI - schedule and publish social media posts from your terminal",
   "keywords": [
     "hookpost",
@@ -9,9 +9,17 @@
     "scheduling",
     "social media scheduler"
   ],
-  "license": "UNLICENSED",
+  "license": "MIT",
   "author": "Hookstep",
   "homepage": "https://hookpost.hookstep.in/docs/public-api",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jatinder14/hookpost-mcp.git",
+    "directory": "cli"
+  },
+  "bugs": {
+    "url": "https://github.com/jatinder14/hookpost-mcp/issues"
+  },
   "bin": {
     "hookpost": "dist/index.js"
   },

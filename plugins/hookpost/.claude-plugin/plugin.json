@@ -10,6 +10,7 @@
   },
   "homepage": "https://hookpost.hookstep.in/guides/claude-code-social-media",
   "repository": "https://github.com/jatinder14/hookpost-mcp",
+  "license": "MIT",
   "keywords": ["social-media", "scheduler", "content-calendar", "linkedin", "x", "threads", "instagram", "mcp"],
   "icon": "./logo.png",
   "documentationUrl": "https://hookpost.hookstep.in/mcp",
