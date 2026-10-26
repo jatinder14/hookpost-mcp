@@ -1,0 +1,37 @@
+name: Publish to npm
+
+# Trusted publishing (OIDC): npm verifies this workflow, so no npm token or OTP is stored anywhere.
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Which package to publish
+        type: choice
+        options: [cli, n8n-node, both]
+        default: both
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir: [cli, n8n-node]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      - name: Update npm (trusted publishing needs npm 11.5+)
+        run: npm install -g npm@latest
+      - name: Publish ${{ matrix.dir }}
+        if: inputs.package == 'both' || inputs.package == matrix.dir
+        working-directory: ${{ matrix.dir }}
+        run: |
+          npm ci || npm install
+          npm run build --if-present
+          npm publish --provenance --access public
