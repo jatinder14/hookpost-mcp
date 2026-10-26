@@ -1,0 +1,28 @@
+{
+  "name": "hookpost",
+  "displayName": "Hookpost",
+  "version": "1.0.0",
+  "description": "Hookpost by Hookstep: draft and schedule social media posts on the channels you connected in Hookpost, from Claude Code.",
+  "author": {
+    "name": "Hookstep",
+    "email": "support@hookstep.in",
+    "url": "https://hookpost.hookstep.in"
+  },
+  "homepage": "https://hookpost.hookstep.in/guides/claude-code-social-media",
+  "repository": "https://github.com/jatinder14/hookpost-mcp",
+  "keywords": ["social-media", "scheduler", "content-calendar", "linkedin", "x", "threads", "instagram", "mcp"],
+  "icon": "./logo.png",
+  "documentationUrl": "https://hookpost.hookstep.in/mcp",
+  "supportUrl": "https://hookpost.hookstep.in/contact",
+  "privacyPolicyUrl": "https://hookpost.hookstep.in/privacy",
+  "termsOfServiceUrl": "https://hookpost.hookstep.in/terms",
+  "userConfig": {
+    "api_key": {
+      "type": "string",
+      "title": "Hookpost API key",
+      "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Standard or Pro plan; the 3-day trial includes it).",
+      "sensitive": true,
+      "required": true
+    }
+  }
+}

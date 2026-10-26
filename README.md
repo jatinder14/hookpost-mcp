@@ -37,6 +37,13 @@ claude mcp add --transport http hookpost https://hookpost.hookstep.in/api/mcp \
 
 Check it with `claude mcp list`.
 
+Or install the Hookpost plugin, which adds the server plus a skill that tells Claude to check each network's rules and save drafts first. Claude Code asks for your API key once and keeps it in your system's credential store:
+
+```
+/plugin marketplace add jatinder14/hookpost-mcp
+/plugin install hookpost@hookpost
+```
+
 ### Claude (claude.ai and Claude Desktop)
 
 Go to **Customize → Connectors → + Add → Add custom connector**, paste the URL with your key in the path, and choose no sign-in:
@@ -177,6 +184,8 @@ The MCP server, CLI and REST API come with Hookpost's Standard and Pro plans. Ea
 | [`cli/`](cli/) | Source of the [`hookpost`](https://www.npmjs.com/package/hookpost) CLI on npm |
 | [`n8n-node/`](n8n-node/) | Source of the [`n8n-nodes-hookpost`](https://www.npmjs.com/package/n8n-nodes-hookpost) community node on npm |
 | [`gemini-extension.json`](gemini-extension.json) | Gemini CLI extension that connects to the hosted MCP server |
+| [`plugins/hookpost/`](plugins/hookpost/) | Claude Code plugin (marketplace in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json)) |
+| [`llms-install.md`](llms-install.md) | Setup steps for AI agents such as Cline |
 | [`server.json`](server.json) | The server's entry in the [official MCP Registry](https://registry.modelcontextprotocol.io), as `in.hookstep/hookpost` |
 
 The MCP server itself is hosted by Hookpost; its code is not in this repo.

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "hookpost": {
+      "type": "http",
+      "url": "https://hookpost.hookstep.in/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${user_config.api_key}"
+      }
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "hookpost",
+  "description": "Hookpost by Hookstep: draft and schedule social media posts from Claude Code.",
+  "owner": {
+    "name": "Hookstep",
+    "email": "support@hookstep.in"
+  },
+  "plugins": [
+    {
+      "name": "hookpost",
+      "source": "./plugins/hookpost",
+      "description": "Connects Claude Code to Hookpost's hosted MCP server, so Claude can list your channels, check each network's rules and save drafts or scheduled posts to your Hookpost calendar.",
+      "category": "productivity"
+    }
+  ]
+}
