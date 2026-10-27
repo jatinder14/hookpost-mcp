@@ -141,6 +141,10 @@ bearer_token_env_var = "HOOKPOST_API_KEY"
 
 Install the [Hookpost power](powers/hookpost/): in the Powers panel, choose **Add Custom Power → Import power from GitHub** and enter `https://github.com/jatinder14/hookpost-mcp/tree/main/powers/hookpost`. It signs in with OAuth, so there is no key to copy.
 
+### Grok
+
+Grok adds remote MCP servers as custom connectors: open [grok.com/connectors](https://grok.com/connectors), click **New Connector → Custom**, enter `https://hookpost.hookstep.in/mcp-oauth` and sign in with your Hookpost account. For Grok Build, the [`grok/hookpost/`](grok/hookpost/) plugin installs the same server with the `hookpost` skill.
+
 Windsurf and other clients: see https://hookpost.hookstep.in/mcp.
 
 ## Tools
