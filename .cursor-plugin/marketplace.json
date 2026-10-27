@@ -1,0 +1,19 @@
+{
+  "name": "hookpost",
+  "owner": {
+    "name": "Hookstep",
+    "email": "support@hookstep.in"
+  },
+  "metadata": {
+    "description": "Hookpost by Hookstep: draft and schedule social media posts from Cursor."
+  },
+  "plugins": [
+    {
+      "name": "hookpost",
+      "source": "./",
+      "description": "Connects Cursor to Hookpost's hosted MCP server, so the agent can list your channels, check each network's rules and save drafts or scheduled posts to your Hookpost calendar.",
+      "category": "productivity",
+      "tags": ["social-media", "scheduling", "marketing", "content-calendar"]
+    }
+  ]
+}

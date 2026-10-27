@@ -1,0 +1,26 @@
+{
+  "name": "hookpost",
+  "version": "1.0.0",
+  "description": "Hookpost by Hookstep: draft and schedule social media posts on the channels you connected in Hookpost, from Cursor. Lists your channels, checks each network's rules, and saves drafts or scheduled posts to your Hookpost calendar.",
+  "author": {
+    "name": "Hookstep",
+    "email": "support@hookstep.in"
+  },
+  "homepage": "https://hookpost.hookstep.in/mcp",
+  "repository": "https://github.com/jatinder14/hookpost-mcp",
+  "license": "MIT",
+  "logo": "assets/logo-400.png",
+  "keywords": ["social-media", "scheduler", "content-calendar", "linkedin", "x", "threads", "instagram", "mcp"],
+  "skills": ["./skills/hookpost"],
+  "variables": {
+    "type": "object",
+    "properties": {
+      "HOOKPOST_API_KEY": {
+        "type": "string",
+        "title": "Hookpost API key",
+        "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Standard or Pro plan; the 3-day trial includes it)."
+      }
+    },
+    "required": ["HOOKPOST_API_KEY"]
+  }
+}

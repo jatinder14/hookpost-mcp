@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "hookpost": {
+      "url": "https://hookpost.hookstep.in/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${HOOKPOST_API_KEY}"
+      }
+    }
+  }
+}
