@@ -192,6 +192,10 @@ The MCP server, CLI and REST API come with Hookpost's Standard and Pro plans. Ea
 
 The MCP server itself is hosted by Hookpost; its code is not in this repo.
 
+## Listed on
+
+[Official MCP Registry](https://registry.modelcontextprotocol.io/v0/servers?search=in.hookstep/hookpost) (`in.hookstep/hookpost`) · [Glama](https://glama.ai/mcp/servers/jatinder14/hookpost-mcp) · [mcpservers.org](https://mcpservers.org/servers/jatinder14/hookpost-mcp) · [RapidAPI](https://rapidapi.com/hookstep-hookstep-default/api/hookpost-social-media-mcp-api)
+
 ## Support
 
 Email support@hookstep.in, or open an issue here. Docs: https://hookpost.hookstep.in/docs/public-api.
