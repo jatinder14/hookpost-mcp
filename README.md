@@ -195,6 +195,7 @@ The MCP server, CLI and REST API come with Hookpost's Standard and Pro plans. Ea
 | [`plugins/hookpost/`](plugins/hookpost/) | Claude Code plugin (marketplace in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json)) |
 | [`.cursor-plugin/`](.cursor-plugin/) and [`mcp.json`](mcp.json) | Cursor plugin: the hosted MCP server plus the [`hookpost` skill](skills/hookpost/SKILL.md) |
 | [`powers/hookpost/`](powers/hookpost/) | Kiro power (Agent Plugins format): the hosted MCP server over OAuth plus the `hookpost` skill |
+| [`grok/hookpost/`](grok/hookpost/) | Grok Build plugin: the hosted MCP server over OAuth plus the `hookpost` skill |
 | [`llms-install.md`](llms-install.md) | Setup steps for AI agents such as Cline |
 | [`server.json`](server.json) | The server's entry in the [official MCP Registry](https://registry.modelcontextprotocol.io), as `in.hookstep/hookpost` |
 

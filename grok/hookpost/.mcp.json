@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "hookpost": {
+      "type": "http",
+      "url": "https://hookpost.hookstep.in/mcp-oauth"
+    }
+  }
+}
