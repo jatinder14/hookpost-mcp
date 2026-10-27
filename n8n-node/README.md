@@ -31,20 +31,22 @@ Press **Test** — it calls `/public/v1/is-connected` to confirm the key before 
 
 ## Operations
 
-| Operation | What it does |
-|---|---|
-| **Create Post** | Schedule, publish now, or save as a draft |
-| **List Posts** | List posts between two dates |
-| **Delete Post** | Delete a post by id |
-| **List Channels** | List your connected channels |
-| **Find Free Slot** | Next free slot in your posting schedule |
-| **Upload From URL** | Add media from a public URL |
+| Resource | Operation | What it does |
+|---|---|---|
+| **Post** | Create | Schedule, publish now, or save as a draft |
+| **Post** | Get Many | List posts between two dates, one item per post |
+| **Post** | Delete | Delete a post by ID |
+| **Channel** | Get Many | List your connected channels |
+| **Channel** | Find Free Slot | Next free slot in your posting schedule |
+| **Media** | Upload From URL | Add an image or video from a public URL |
 
-The channel dropdown loads your real connected channels — no need to look up ids by hand.
+The channel dropdown loads your real connected channels, so there's no need to look up IDs by hand. The node is marked usable as a tool, so n8n AI Agents can call it too.
 
 ## Notes
 
 **Scheduling.** Leave **Date** empty on a scheduled post and the node asks Hookpost for the next free slot in your posting schedule, matching what the app does when you press Create Post.
+
+**Media.** To attach an image or video, run **Media → Upload From URL** first, then put the returned `path` into **Additional Fields → Media URLs** on **Post → Create**.
 
 **Channel settings.** Some channels need extra fields — YouTube wants a title and visibility, Pinterest wants a board. Put them in **Additional Fields → Channel Settings (JSON)**:
 

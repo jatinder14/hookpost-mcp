@@ -1,7 +1,19 @@
 name: Publish to npm
 
-# Trusted publishing (OIDC): npm verifies this workflow, so no npm token or OTP is stored anywhere.
+# Publishes with an npm provenance statement from GitHub Actions. n8n requires
+# this for verified community nodes (since 1 May 2026), and npm trusted
+# publishing (OIDC) verifies this file by name, so keep it as publish.yml.
+#
+# - Push a tag n8n-node-vX.Y.Z (matching n8n-node/package.json) to publish the
+#   n8n node.
+# - Or run it by hand from the Actions tab and pick a package.
+#
+# Auth: npm trusted publishing (no token stored). If a package has no trusted
+# publisher, an NPM_TOKEN repository secret is used instead when present.
 on:
+  push:
+    tags:
+      - 'n8n-node-v*'
   workflow_dispatch:
     inputs:
       package:
@@ -20,18 +32,36 @@ jobs:
     strategy:
       matrix:
         dir: [cli, n8n-node]
+    env:
+      SELECTED: ${{ (github.event_name == 'push' && matrix.dir == 'n8n-node') || (github.event_name == 'workflow_dispatch' && (inputs.package == 'both' || inputs.package == matrix.dir)) }}
     steps:
       - uses: actions/checkout@v4
+        if: env.SELECTED == 'true'
       - uses: actions/setup-node@v4
+        if: env.SELECTED == 'true'
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
       - name: Update npm (trusted publishing needs npm 11.5+)
+        if: env.SELECTED == 'true'
         run: npm install -g npm@latest
-      - name: Publish ${{ matrix.dir }}
-        if: inputs.package == 'both' || inputs.package == matrix.dir
+      - name: Check the tag matches package.json
+        if: env.SELECTED == 'true' && github.event_name == 'push'
         working-directory: ${{ matrix.dir }}
         run: |
+          expected="n8n-node-v$(node -p "require('./package.json').version")"
+          if [ "${GITHUB_REF_NAME}" != "${expected}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match package.json (${expected})"
+            exit 1
+          fi
+      - name: Publish ${{ matrix.dir }}
+        if: env.SELECTED == 'true'
+        working-directory: ${{ matrix.dir }}
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          [ -n "$NPM_TOKEN" ] && npm config set //registry.npmjs.org/:_authToken "$NPM_TOKEN"
           npm ci || npm install
+          npm run lint --if-present
           npm run build --if-present
           npm publish --provenance --access public
