@@ -42,6 +42,14 @@ Press **Test** — it calls `/public/v1/is-connected` to confirm the key before 
 
 The channel dropdown loads your real connected channels, so there's no need to look up IDs by hand. The node is marked usable as a tool, so n8n AI Agents can call it too.
 
+## Example workflows
+
+**Draft a post for every new blog article.** RSS Feed Trigger (your blog's feed) → Hookpost, **Post → Create**: Channel = your LinkedIn channel, Content = `{{ $json.title }} {{ $json.link }}`, When = **Save as Draft**. Each new article lands in Hookpost as a draft for you to review and schedule.
+
+**Post an image from a URL.** Hookpost, **Media → Upload From URL** with the image URL → Hookpost, **Post → Create** with **Additional Fields → Media URLs** = `{{ $json.path }}` and When = **Schedule** with Date left empty, so it takes the next free slot.
+
+**Weekly digest of what's scheduled.** Schedule Trigger (Mondays) → Hookpost, **Post → Get Many** with Start Date = `{{ $now }}` and End Date = `{{ $now.plus(7, 'days') }}` → send the list to email or Slack.
+
 ## Notes
 
 **Scheduling.** Leave **Date** empty on a scheduled post and the node asks Hookpost for the next free slot in your posting schedule, matching what the app does when you press Create Post.
