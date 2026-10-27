@@ -1,0 +1,25 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "hookpost",
+  "version": "1.0.0",
+  "description": "Social media scheduler with a hosted MCP server: list your connected channels (LinkedIn, X, Instagram, Threads, YouTube, Pinterest and more), read each network's rules, write per-network posts and save them as drafts or schedule them.",
+  "author": {
+    "name": "Hookstep",
+    "email": "support@hookstep.in",
+    "url": "https://hookpost.hookstep.in"
+  },
+  "homepage": "https://hookpost.hookstep.in/mcp",
+  "repository": "https://github.com/jatinder14/hookpost-mcp",
+  "license": "MIT",
+  "keywords": [
+    "hookpost",
+    "social media",
+    "social post",
+    "schedule post",
+    "content calendar",
+    "linkedin post",
+    "tweet",
+    "threads post",
+    "instagram post"
+  ]
+}

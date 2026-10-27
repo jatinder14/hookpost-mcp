@@ -1,0 +1,9 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "hookpost": {
+      "type": "streamable-http",
+      "url": "https://hookpost.hookstep.in/mcp-oauth"
+    }
+  }
+}

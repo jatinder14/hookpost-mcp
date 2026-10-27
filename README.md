@@ -137,6 +137,10 @@ url = "https://hookpost.hookstep.in/api/mcp"
 bearer_token_env_var = "HOOKPOST_API_KEY"
 ```
 
+### Kiro
+
+Install the [Hookpost power](powers/hookpost/): in the Powers panel, choose **Add Custom Power → Import power from GitHub** and enter `https://github.com/jatinder14/hookpost-mcp/tree/main/powers/hookpost`. It signs in with OAuth, so there is no key to copy.
+
 Windsurf and other clients: see https://hookpost.hookstep.in/mcp.
 
 ## Tools
@@ -190,6 +194,7 @@ The MCP server, CLI and REST API come with Hookpost's Standard and Pro plans. Ea
 | [`gemini-extension.json`](gemini-extension.json) | Gemini CLI extension that connects to the hosted MCP server |
 | [`plugins/hookpost/`](plugins/hookpost/) | Claude Code plugin (marketplace in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json)) |
 | [`.cursor-plugin/`](.cursor-plugin/) and [`mcp.json`](mcp.json) | Cursor plugin: the hosted MCP server plus the [`hookpost` skill](skills/hookpost/SKILL.md) |
+| [`powers/hookpost/`](powers/hookpost/) | Kiro power (Agent Plugins format): the hosted MCP server over OAuth plus the `hookpost` skill |
 | [`llms-install.md`](llms-install.md) | Setup steps for AI agents such as Cline |
 | [`server.json`](server.json) | The server's entry in the [official MCP Registry](https://registry.modelcontextprotocol.io), as `in.hookstep/hookpost` |
 
@@ -203,7 +208,7 @@ The MCP server itself is hosted by Hookpost; its code is not in this repo.
 
 ## Support
 
-Email support@hookstep.in, or open an issue here. Docs: https://hookpost.hookstep.in/docs/public-api.
+Email support@hookstep.in, or open an issue here. Docs: https://hookpost.hookstep.in/docs/public-api. Privacy policy: https://hookpost.hookstep.in/privacy.
 
 ## Licence
 
