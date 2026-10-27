@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "hookpost": {
+      "type": "streamable-http",
+      "url": "https://hookpost.hookstep.in/mcp-oauth",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "dcr"
+            },
+            "baseScopes": [
+              "mcp:read",
+              "mcp:write"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
