@@ -18,7 +18,7 @@
       "HOOKPOST_API_KEY": {
         "type": "string",
         "title": "Hookpost API key",
-        "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Standard or Pro plan; the 3-day trial includes it)."
+        "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Standard or Pro plan; new workspaces get 3 free posts first, no card needed)."
       }
     },
     "required": ["HOOKPOST_API_KEY"]

@@ -11,7 +11,7 @@
 
 Claude Code asks for your Hookpost API key when you enable the plugin. Copy it from **Settings → Developers** in Hookpost. The key is stored in your system's secure credential store, not in `settings.json`.
 
-You need a Hookpost workspace on the Standard or Pro plan (each starts with a 3-day trial) and at least one connected channel. Prices: https://hookpost.hookstep.in/pricing.
+You need a Hookpost workspace on the Standard or Pro plan (new workspaces get 3 free posts first, no card needed) and at least one connected channel. Prices: https://hookpost.hookstep.in/pricing.
 
 ## What the plugin contains
 

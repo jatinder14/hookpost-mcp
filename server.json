@@ -25,7 +25,7 @@
       "headers": [
         {
           "name": "Authorization",
-          "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Standard or Pro plan, 3-day trial included).",
+          "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Standard or Pro plan; new workspaces get 3 free posts first, no card needed).",
           "isRequired": true,
           "isSecret": true,
           "value": "Bearer {api_key}",

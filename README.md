@@ -187,7 +187,7 @@ The `n8n-nodes-hookpost` community node creates, lists and deletes posts, lists 
 
 ## Plans and pricing
 
-The MCP server, CLI and REST API come with Hookpost's Standard and Pro plans. Each plan starts with a 3-day trial. Current prices, in USD and INR, are at https://hookpost.hookstep.in/pricing.
+The MCP server, CLI and REST API come with Hookpost's Standard and Pro plans. New workspaces get 3 free posts with no card needed; then Standard is $19/month (₹599 in India) or Pro $29/month (₹1,999 in India). Current prices are at https://hookpost.hookstep.in/pricing.
 
 ## What's in this repo
 

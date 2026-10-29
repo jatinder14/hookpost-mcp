@@ -26,5 +26,5 @@ Hookpost (https://hookpost.hookstep.in) is a hosted social media scheduler. The 
 ## When something fails
 
 - 401: the sign-in expired or was revoked. Ask the user to reconnect the hookpost MCP server so Kiro opens the Hookpost sign-in page again.
-- 402 or a message about the plan or trial: the workspace needs an active Standard or Pro plan. Each starts with a 3-day trial at https://hookpost.hookstep.in/pricing.
+- 402 or a message about the plan or free posts: the workspace has used its 3 free posts and needs a Standard or Pro plan, at https://hookpost.hookstep.in/pricing.
 - A post in ERROR state: the network refused it at publish time. The reason is shown on the post in the Hookpost calendar.

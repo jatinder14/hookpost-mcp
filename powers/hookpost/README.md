@@ -22,7 +22,7 @@ The first time the server connects, Kiro opens the Hookpost sign-in page in your
 
 ## Requirements
 
-A Hookpost workspace on the Standard or Pro plan. Each plan starts with a 3-day free trial: https://hookpost.hookstep.in/pricing.
+A Hookpost workspace on the Standard or Pro plan. New workspaces get 3 free posts with no card needed; then Standard is $19/month (₹599 in India) or Pro $29/month (₹1,999 in India): https://hookpost.hookstep.in/pricing.
 
 ## Tools
 

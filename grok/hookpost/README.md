@@ -20,7 +20,7 @@ If your client cannot do OAuth, the same tools are available at `https://hookpos
 
 ## Requirements
 
-A Hookpost workspace on the Standard or Pro plan, with at least one connected channel. Each plan starts with a 3-day free trial: https://hookpost.hookstep.in/pricing.
+A Hookpost workspace on the Standard or Pro plan, with at least one connected channel. New workspaces get 3 free posts with no card needed; then Standard is $19/month (₹599 in India) or Pro $29/month (₹1,999 in India): https://hookpost.hookstep.in/pricing.
 
 ## Network endpoints and credentials
 

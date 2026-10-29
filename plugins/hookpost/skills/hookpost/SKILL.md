@@ -26,5 +26,5 @@ Hookpost (https://hookpost.hookstep.in) is a hosted social media scheduler. The 
 ## When something fails
 
 - 401: the API key is missing, wrong or was rotated. Ask the user to copy a fresh key from Settings > Developers in Hookpost and update it in the plugin's settings.
-- 402 or a message about the plan or trial: the workspace needs an active Standard or Pro plan. Each starts with a 3-day trial at https://hookpost.hookstep.in/pricing.
+- 402 or a message about the plan or free posts: the workspace has used its 3 free posts and needs a Standard or Pro plan, at https://hookpost.hookstep.in/pricing.
 - A post in ERROR state: the network refused it at publish time. The reason is shown on the post in the Hookpost calendar.
