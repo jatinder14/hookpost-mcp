@@ -1,0 +1,23 @@
+{
+  "properties": {
+    "connectionParameters": {
+      "api_key": {
+        "type": "securestring",
+        "uiDefinition": {
+          "displayName": "Hookpost API key",
+          "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost",
+          "tooltip": "Paste the raw key, without 'Bearer'",
+          "constraints": {
+            "tabIndex": 2,
+            "clearText": false,
+            "required": "true"
+          }
+        }
+      }
+    },
+    "iconBrandColor": "#0B0F19",
+    "capabilities": [],
+    "publisher": "Hookstep",
+    "stackOwner": "Hookstep"
+  }
+}

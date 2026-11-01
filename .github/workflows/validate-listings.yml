@@ -1,0 +1,29 @@
+name: Validate listings
+
+# Checks every listing manifest (Microsoft 365 / Copilot package, Copilot Studio
+# connector, Windsurf config, MCP Registry server.json) on each push and PR.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Listing tests
+        working-directory: tests
+        # With a HOOKPOST_API_KEY repo secret, the tool file is also compared
+        # with the live server's tools/list; without it that test is skipped.
+        env:
+          HOOKPOST_API_KEY: ${{ secrets.HOOKPOST_API_KEY }}
+        run: |
+          npm ci
+          npm test

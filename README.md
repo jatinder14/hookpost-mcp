@@ -145,7 +145,30 @@ Install the [Hookpost power](powers/hookpost/): in the Powers panel, choose **Ad
 
 Grok adds remote MCP servers as custom connectors: open [grok.com/connectors](https://grok.com/connectors), click **New Connector → Custom**, enter `https://hookpost.hookstep.in/mcp-oauth` and sign in with your Hookpost account. For Grok Build, the [`grok/hookpost/`](grok/hookpost/) plugin installs the same server with the `hookpost` skill.
 
-Windsurf and other clients: see https://hookpost.hookstep.in/mcp.
+### Windsurf
+
+Open Windsurf's MCP settings, choose **View raw config** to open `mcp_config.json`, and add the `hookpost` entry from [`windsurf/mcp_config.json`](windsurf/mcp_config.json):
+
+```json
+{
+  "mcpServers": {
+    "hookpost": {
+      "serverUrl": "https://hookpost.hookstep.in/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:HOOKPOST_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+Windsurf reads `HOOKPOST_API_KEY` from your environment, so the key stays out of the file. On macOS an app opened from the Dock doesn't see variables set in `.zshrc`: open Windsurf from a terminal, or put the key in the file in place of `${env:HOOKPOST_API_KEY}`. Windsurf takes `serverUrl` for remote servers, not `url`. Restart Cascade after saving.
+
+### Microsoft Copilot Studio
+
+In your agent, go to **Tools → Add a tool → New tool → Model Context Protocol**. Enter `https://hookpost.hookstep.in/api/mcp` as the server URL, choose **API key** authentication with type **Header** and header name `x-hookpost-api-key`, then paste your key (without `Bearer`) when you create the connection. A ready-to-import custom connector and the Microsoft 365 Copilot package are in [`microsoft/`](microsoft/).
+
+Other clients: see https://hookpost.hookstep.in/mcp.
 
 ## Tools
 
@@ -201,13 +224,16 @@ The MCP server, CLI and REST API come with Hookpost's Standard and Pro plans. Ne
 | [`powers/hookpost/`](powers/hookpost/) | Kiro power (Agent Plugins format): the hosted MCP server over OAuth plus the `hookpost` skill |
 | [`grok/hookpost/`](grok/hookpost/) | Grok Build plugin: the hosted MCP server over OAuth plus the `hookpost` skill |
 | [`llms-install.md`](llms-install.md) | Setup steps for AI agents such as Cline |
+| [`windsurf/mcp_config.json`](windsurf/mcp_config.json) | Windsurf config for the hosted MCP server |
+| [`microsoft/`](microsoft/) | Copilot Studio custom connector, and the Microsoft 365 / Copilot certification package ([how to submit it](microsoft/README.md)) |
+| [`tests/`](tests/) | Checks for every listing manifest (`cd tests && npm ci && npm test`) |
 | [`server.json`](server.json) | The server's entry in the [official MCP Registry](https://registry.modelcontextprotocol.io), as `in.hookstep/hookpost` |
 
 The MCP server itself is hosted by Hookpost; its code is not in this repo.
 
 ## Listed on
 
-[Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=in.hookstep/hookpost) (`in.hookstep/hookpost`) · [Glama](https://glama.ai/mcp/servers/jatinder14/hookpost-mcp) · [LobeHub](https://lobehub.com/mcp/jatinder14-hookpost-mcp) · [mcpservers.org](https://mcpservers.org/servers/jatinder14/hookpost-mcp) · [RapidAPI](https://rapidapi.com/hookstep-hookstep-default/api/hookpost-social-media-mcp-api)
+[Official MCP Registry](https://registry.modelcontextprotocol.io/v0.1/servers?search=in.hookstep/hookpost) (`in.hookstep/hookpost`) · [GitHub MCP Registry](https://github.com/mcp/in.hookstep/hookpost) · [Glama](https://glama.ai/mcp/servers/jatinder14/hookpost-mcp) · [LobeHub](https://lobehub.com/mcp/jatinder14-hookpost-mcp) · [mcpservers.org](https://mcpservers.org/servers/jatinder14/hookpost-mcp) · [RapidAPI](https://rapidapi.com/hookstep-hookstep-default/api/hookpost-social-media-mcp-api)
 
 [![jatinder14/hookpost-mcp MCP server](https://glama.ai/mcp/servers/jatinder14/hookpost-mcp/badges/score.svg)](https://glama.ai/mcp/servers/jatinder14/hookpost-mcp) [![MCP Badge](https://lobehub.com/badge/mcp/jatinder14-hookpost-mcp)](https://lobehub.com/mcp/jatinder14-hookpost-mcp)
 
