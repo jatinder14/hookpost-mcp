@@ -1,0 +1,293 @@
+{
+  "tools": [
+    {
+      "name": "groupList",
+      "description": "This tool lists the available groups (customers). Use a group id with the integrationList tool to filter the integrations belonging to that group",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "integrationList",
+      "description": "This tool list available integrations to schedule posts to. Optionally pass a group id (from the groupList tool) to only list integrations belonging to that group",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string",
+            "description": "Optional group (customer) id from the groupList tool to filter the integrations"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "integrationSchema",
+      "description": "Everytime we want to schedule a social media post, we need to understand the schema of the integration.\n         This tool helps us get the schema of the integration.\n         Sometimes we might get a schema back the requires some id, for that, you can get information from 'tools'\n         And use the triggerTool function.\n        ",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "isPremium": {
+            "type": "boolean",
+            "description": "is this the user premium? if not, set to false"
+          },
+          "platform": {
+            "type": "string",
+            "description": "platform identifier (x, linkedin, linkedin-page, instagram, instagram-standalone, facebook, threads, youtube, gmb, tiktok, tiktok-business, pinterest, dribbble, discord, slack, kick, twitch, mastodon, bluesky, lemmy, wrapcast, telegram, nostr, vk, medium, devto, hashnode, wordpress, listmonk, moltbook, whop, skool, mewe, tumblr)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "isPremium",
+          "platform"
+        ]
+      }
+    },
+    {
+      "name": "triggerTool",
+      "description": "Use this to call a provider helper function (a methodName from the integrationSchema callable tools) that fetches provider-specific data needed for settings, like ids or search results.\n      Some helper functions require values provided by the user, like a word to search for. methodName is required [input:callable-tools].\n      If provider auth is expired, this tool may refresh the stored integration token; if refresh fails, it marks the channel as needing reconnect and notifies the organization.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "integrationId": {
+            "type": "string",
+            "description": "The id of the integration"
+          },
+          "methodName": {
+            "type": "string",
+            "description": "The methodName from the `integrationSchema` functions in the tools array, required"
+          },
+          "dataSchema": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "description": "Name of the settings key to pass"
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Value of the key"
+                }
+              },
+              "required": [
+                "key",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "integrationId",
+          "methodName",
+          "dataSchema"
+        ]
+      }
+    },
+    {
+      "name": "integrationSchedulePostTool",
+      "description": "\nUse this when the user wants to create a draft, scheduled, or immediate social media post on their connected channels, based on the integrationSchema tool.\nExamples of the input shape:\n\nA single LinkedIn post with one comment\n- socialPost array length will be one\n- postsAndComments array length will be two (one for the post, one for the comment)\n\n20 Facebook posts each on individual days without comments\n- socialPost array length will be 20\n- postsAndComments array length will be one\n\nDo not use this to update or delete existing posts.\nIf validation fails, the result contains output.errors describing what to fix; the call can be retried with corrected parameters.\n",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "socialPost": {
+            "type": "array",
+            "description": "Individual post",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "integrationId": {
+                  "type": "string",
+                  "description": "The id of the integration (not internal id)"
+                },
+                "isPremium": {
+                  "type": "boolean",
+                  "description": "If the integration is X, return if it's premium or not"
+                },
+                "date": {
+                  "type": "string",
+                  "description": "The date of the post in UTC time"
+                },
+                "shortLink": {
+                  "type": "boolean",
+                  "description": "If the post has a link inside, we can ask the user if they want to add a short link"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "draft",
+                    "schedule",
+                    "now"
+                  ],
+                  "description": "The type of the post, if we pass now, we should pass the current date also"
+                },
+                "remindMe": {
+                  "type": "boolean",
+                  "description": "Only when the user asks to post it themselves (e.g. to add music in the Instagram/TikTok/YouTube app): Hookpost then emails them the media and caption at the scheduled time instead of publishing. Leave out to publish automatically."
+                },
+                "postsAndComments": {
+                  "type": "array",
+                  "description": "first item is the post, every other item is the comments",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "content": {
+                        "type": "string",
+                        "description": "The content of the post, HTML, Each line must be wrapped in <p> here is the possible tags: h1, h2, h3, u, strong, li, ul, p (you can't have u and strong together)"
+                      },
+                      "attachments": {
+                        "type": "array",
+                        "description": "The image of the post (URLS)",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "content",
+                      "attachments"
+                    ]
+                  }
+                },
+                "settings": {
+                  "type": "array",
+                  "description": "This relies on the integrationSchema tool to get the settings [input:settings]",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "description": "Name of the settings key to pass"
+                      },
+                      "value": {
+                        "description": "Value of the key, always prefer the id then label if possible"
+                      }
+                    },
+                    "required": [
+                      "key"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "integrationId",
+                "isPremium",
+                "date",
+                "shortLink",
+                "type",
+                "postsAndComments",
+                "settings"
+              ]
+            }
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "socialPost"
+        ]
+      }
+    },
+    {
+      "name": "postsListTool",
+      "description": "\nList the organization's posts scheduled to be published between two dates (the same data as the \"List Posts\" API endpoint).\nReturns every post in the window whatever its state (scheduled, draft, published, errored).\n\"startDate\" and \"endDate\" are required (UTC) - to list all upcoming posts, pass a wide window (for example from now to a year ahead).\nEach item has an \"id\", its publish date, state, content, channel and current provider settings.\nPass \"includeAttachments\": true to also get each post's \"attachments\" (media already uploaded to Hookpost). Their \"path\" values can be passed straight to integrationSchedulePostTool as \"attachments\" to reuse the same media on another channel - do not re-upload them.\nPosts cannot be deleted through the Hookpost tools - if the user wants to delete a post, tell them to do it themselves in the Hookpost app; never offer to delete a post.\n",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "startDate": {
+            "type": "string",
+            "description": "Start of the window (UTC), for example 2026-07-20T00:00:00"
+          },
+          "endDate": {
+            "type": "string",
+            "description": "End of the window (UTC), for example 2026-08-20T00:00:00"
+          },
+          "customer": {
+            "type": "string",
+            "description": "Optional customer (group) id to filter the channels by"
+          },
+          "includeAttachments": {
+            "type": "boolean",
+            "description": "Set to true to include the attachments of each post (needed to duplicate or mirror a post with its media)"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "startDate",
+          "endDate"
+        ]
+      }
+    },
+    {
+      "name": "postSettingsTool",
+      "description": "\nUpdate the provider settings of an existing post (scheduled or draft) that was NOT published yet.\nOnly the settings change - the content and the publish date stay exactly as they are.\nFind the post first (list your posts) and pass its \"id\" here.\nThe settings are merged into the existing ones, so only pass the keys you want to change; anything you don't pass stays as it is.\nThis relies on the integrationSchema tool [input:settings] to know which keys exist for the platform.\nIf validation fails, the result contains output.errors describing what to fix; the call can be retried with corrected parameters.\n",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The \"id\" of the post to update its settings"
+          },
+          "settings": {
+            "type": "array",
+            "description": "Settings keys to change, merged into the existing settings. This relies on the integrationSchema tool [input:settings]",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "description": "Name of the settings key to change"
+                },
+                "value": {
+                  "description": "New value of the key, always prefer the id then label if possible"
+                }
+              },
+              "required": [
+                "key"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "id",
+          "settings"
+        ]
+      }
+    },
+    {
+      "name": "uploadFromUrlTool",
+      "description": "Upload a remote image or video into the media library from a public URL.\nUse this before scheduling a post when the user provides an external media URL (not already hosted on our domain),\nso the attachment passes the upload-domain validation. Returns the hosted media { id, path } to use as an attachment, or { error } on failure.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The public URL of the image or video to upload"
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "required": [
+          "url"
+        ]
+      }
+    }
+  ]
+}

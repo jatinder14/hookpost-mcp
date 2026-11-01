@@ -1,0 +1,14 @@
+{
+  "name": "hookpost-mcp-listing-tests",
+  "private": true,
+  "type": "module",
+  "description": "Checks the listing manifests in this repo (Microsoft, Windsurf, registry) before they are submitted.",
+  "scripts": {
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-draft-04": "^1.0.0",
+    "ajv-formats": "^3.0.1"
+  }
+}

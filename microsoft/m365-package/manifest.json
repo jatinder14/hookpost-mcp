@@ -1,0 +1,45 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.30/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.30",
+  "version": "1.0.0",
+  "id": "96123344-f656-4f57-87b1-286df11c8f00",
+  "developer": {
+    "name": "Hookstep",
+    "websiteUrl": "https://hookpost.hookstep.in",
+    "privacyUrl": "https://hookpost.hookstep.in/privacy",
+    "termsOfUseUrl": "https://hookpost.hookstep.in/terms"
+  },
+  "name": {
+    "short": "Hookpost",
+    "full": "Hookpost: social media scheduler"
+  },
+  "description": {
+    "short": "Draft and schedule social media posts on your connected channels.",
+    "full": "Hookpost is a social media scheduler. Connect your Hookpost workspace and your agent can list the channels you connected (LinkedIn, X, Instagram, Facebook, Threads, YouTube, TikTok, Bluesky and more), read each network's rules such as character limits and media rules, save posts as drafts, schedule them on your calendar or publish them now, list what is scheduled between two dates, change the network settings of a post that has not gone out yet, and import an image or video from a public URL. Posts from the agent land in the same Hookpost calendar as posts written in the app and go through the same checks, so a post that breaks a network's rules comes back with the reason. There is no delete tool: deleting a post, or editing its text or date, stays in the Hookpost app. Pricing: every new workspace gets 3 free posts with no card needed. After that, Standard is $19 a month (Rs 599 in India) and Pro is $29 a month (Rs 1,999 in India)."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#0B0F19",
+  "agentConnectors": [
+    {
+      "id": "hookpost",
+      "displayName": "Hookpost",
+      "description": "Lists your connected social channels, reads each network's posting rules, and saves drafts, scheduled posts or immediate posts to your Hookpost calendar.",
+      "toolSource": {
+        "remoteMcpServer": {
+          "mcpServerUrl": "https://hookpost.hookstep.in/mcp-oauth",
+          "mcpToolDescription": {
+            "file": "toolDescription.json"
+          },
+          "authorization": {
+            "type": "AzureKeyVault",
+            "referenceId": "${{HOOKPOST_KEYVAULT_URI}}"
+          }
+        }
+      }
+    }
+  ],
+  "validDomains": ["hookpost.hookstep.in"]
+}

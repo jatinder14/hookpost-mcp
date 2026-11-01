@@ -1,0 +1,63 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Hookpost",
+    "description": "Draft and schedule social media posts on the channels connected to your Hookpost workspace. New workspaces get 3 free posts; then Standard $19/month or Pro $29/month.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Hookstep",
+      "url": "https://hookpost.hookstep.in",
+      "email": "support@hookstep.in"
+    }
+  },
+  "host": "hookpost.hookstep.in",
+  "basePath": "/api",
+  "schemes": ["https"],
+  "consumes": [],
+  "produces": [],
+  "paths": {
+    "/mcp": {
+      "post": {
+        "summary": "Hookpost MCP server",
+        "description": "Lists your connected channels, reads each network's rules, and saves drafts, scheduled posts or immediate posts to your Hookpost calendar.",
+        "x-ms-agentic-protocol": "mcp-streamable-1.0",
+        "operationId": "InvokeHookpostMCP",
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {},
+  "parameters": {},
+  "responses": {},
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "x-hookpost-api-key"
+    }
+  },
+  "security": [
+    {
+      "api_key": []
+    }
+  ],
+  "tags": [],
+  "x-ms-connector-metadata": [
+    {
+      "propertyName": "Website",
+      "propertyValue": "https://hookpost.hookstep.in"
+    },
+    {
+      "propertyName": "Privacy policy",
+      "propertyValue": "https://hookpost.hookstep.in/privacy"
+    },
+    {
+      "propertyName": "Categories",
+      "propertyValue": "Marketing;Productivity"
+    }
+  ]
+}
