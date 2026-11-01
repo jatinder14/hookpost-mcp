@@ -9,6 +9,10 @@ import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { inflateSync } from 'node:zlib';
+// schemas/MicrosoftTeams.v1.30.schema.json is Microsoft's published file, unmodified:
+// https://developer.microsoft.com/json-schemas/teams/v1.30/MicrosoftTeams.schema.json
+// sha256 dfc85799e94527a16a622988620c82de1f58e790f97001e5e6bbe37fcf6846df (2 Nov 2026)
+import { createHash } from 'node:crypto';
 import Ajv04 from 'ajv-draft-04';
 import addFormats from 'ajv-formats';
 import { buildPackage, fillManifest, PACKAGE_DIR, PACKAGE_FILES } from '../scripts/build-m365-package.mjs';
@@ -88,7 +92,8 @@ describe('every listing file', () => {
 
   test('no listing still offers the retired 3-day trial', () => {
     for (const file of listingFiles()) {
-      assert.doesNotMatch(read(file), /3-day trial|three-day trial|trial included/i, `${file} mentions the retired trial`);
+      // Trials are off (owner decision, 29 Oct 2026): no listing may offer one.
+      assert.doesNotMatch(read(file), /\btrials?\b/i, `${file} mentions a trial`);
     }
   });
 
@@ -100,6 +105,9 @@ describe('every listing file', () => {
         const amount = price.replace(/^(?:Rs\.?|₹)\s?/, '');
         assert.ok(allowed.has(amount) || allowed.has(price), `${file} quotes ${price}`);
       }
+      // Each plan carries its own price: Standard is never $29 / 1,999, Pro never $19 / 599.
+      assert.doesNotMatch(read(file), /Standard[^.$₹]{0,30}(?:\$29|(?:Rs\.?|₹)\s?1,999)/, `${file} prices Standard as Pro`);
+      assert.doesNotMatch(read(file), /\bPro[^.$₹]{0,30}(?:\$19|(?:Rs\.?|₹)\s?599)/, `${file} prices Pro as Standard`);
     }
   });
 });
@@ -107,6 +115,11 @@ describe('every listing file', () => {
 describe('Microsoft 365 / Copilot package', () => {
   const manifest = readJson('microsoft/m365-package/manifest.json');
   const tools = readJson('microsoft/m365-package/toolDescription.json').tools;
+
+  test('the vendored v1.30 schema is the published Microsoft file, unmodified', () => {
+    const hash = createHash('sha256').update(readFileSync(join(ROOT, 'tests/schemas/MicrosoftTeams.v1.30.schema.json'))).digest('hex');
+    assert.equal(hash, 'dfc85799e94527a16a622988620c82de1f58e790f97001e5e6bbe37fcf6846df');
+  });
 
   test('manifest validates against the app manifest v1.30 schema', () => {
     const ajv = new Ajv04({ allErrors: true, strict: false });
@@ -265,10 +278,13 @@ test('toolDescription.json matches the live tools/list', { skip: !process.env.HO
   assert.equal(response.status, 200);
   const text = await response.text();
   const body = JSON.parse(text.startsWith('{') ? text : text.match(/^data: (.*)$/m)[1]);
-  const live = Object.fromEntries(body.result.tools.map((t) => [t.name, t.inputSchema]));
+  const live = Object.fromEntries(body.result.tools.map((t) => [t.name, t]));
   const packaged = readJson('microsoft/m365-package/toolDescription.json').tools;
   assert.deepEqual(Object.keys(live).sort(), packaged.map((t) => t.name).sort());
-  for (const tool of packaged) assert.deepEqual(tool.inputSchema, live[tool.name], `${tool.name} schema drifted`);
+  for (const tool of packaged) {
+    assert.deepEqual(tool.inputSchema, live[tool.name].inputSchema, `${tool.name} schema drifted`);
+    assert.equal(tool.description, live[tool.name].description, `${tool.name} description drifted`);
+  }
 });
 
 test('the package folder holds nothing that is not shipped or documented', () => {

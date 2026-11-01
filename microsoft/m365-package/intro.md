@@ -13,7 +13,7 @@ Hookstep, support@hookstep.in
 
 ## Authentication
 
-OAuth 2.0 authorization code with PKCE. When the agent first calls Hookpost, you sign in to Hookpost and pick the workspace the agent may use.
+OAuth 2.0 authorization code flow (PKCE with S256 supported), scopes `mcp:read` and `mcp:write`. When the agent first calls Hookpost, you sign in to Hookpost and pick the workspace the agent may use.
 
 ## Tools
 

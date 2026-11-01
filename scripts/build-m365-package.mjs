@@ -4,6 +4,7 @@
 //
 //   HOOKPOST_KEYVAULT_URI=https://<vault>.vault.azure.net/ node scripts/build-m365-package.mjs [out.zip]
 //
+// Needs the `zip` command (preinstalled on macOS and GitHub's Ubuntu runners).
 // The Key Vault URI is the only value filled in at build time: it names the vault
 // that holds the OAuth client secret, so it stays out of the repo.
 import { execFileSync } from 'node:child_process';
@@ -30,7 +31,9 @@ export function fillManifest(manifestText, vaultUri) {
   return manifestText.split(PLACEHOLDER).join(vaultUri);
 }
 
-export function buildPackage(vaultUri, outZip) {
+export function buildPackage(vaultUri, outPath) {
+  // zip runs inside the staging folder, so a relative path must be resolved first.
+  const outZip = resolve(outPath);
   const manifest = fillManifest(readFileSync(join(PACKAGE_DIR, 'manifest.json'), 'utf8'), vaultUri);
   const staging = mkdtempSync(join(tmpdir(), 'hookpost-m365-'));
   try {

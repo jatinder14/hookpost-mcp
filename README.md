@@ -162,7 +162,7 @@ Open Windsurf's MCP settings, choose **View raw config** to open `mcp_config.jso
 }
 ```
 
-Windsurf reads `HOOKPOST_API_KEY` from your environment, so the key stays out of the file. Windsurf takes `serverUrl` for remote servers, not `url`. Restart Cascade after saving.
+Windsurf reads `HOOKPOST_API_KEY` from your environment, so the key stays out of the file. On macOS an app opened from the Dock doesn't see variables set in `.zshrc`: open Windsurf from a terminal, or put the key in the file in place of `${env:HOOKPOST_API_KEY}`. Windsurf takes `serverUrl` for remote servers, not `url`. Restart Cascade after saving.
 
 ### Microsoft Copilot Studio
 
