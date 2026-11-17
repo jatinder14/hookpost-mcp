@@ -2,8 +2,8 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "in.hookstep/hookpost",
   "title": "Hookpost",
-  "description": "Draft and schedule social media posts on your connected channels from Claude or any MCP client.",
-  "version": "1.0.3",
+  "description": "Draft, schedule and publish social posts from any AI agent, with connect links and previews.",
+  "version": "1.1.0",
   "websiteUrl": "https://hookpost.hookstep.in/mcp",
   "repository": {
     "url": "https://github.com/jatinder14/hookpost-mcp",
