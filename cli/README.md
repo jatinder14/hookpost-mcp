@@ -172,4 +172,8 @@ hookpost connect linkedin
 
 Node.js 18 or later. API reference: https://hookpost.hookstep.in/docs/public-api · MCP: https://hookpost.hookstep.in/mcp · Support: support@hookstep.in
 
-MIT licence. Hookpost by Hookstep.
+## Licence
+
+MIT. Copyright (c) 2026 Hookstep. Source: [jatinder14/hookpost-mcp](https://github.com/jatinder14/hookpost-mcp/tree/main/cli).
+
+The MIT licence covers this client package only. Hookpost itself, the hosted service it talks to, is proprietary software of Hookstep.
