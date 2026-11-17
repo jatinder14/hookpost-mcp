@@ -17,7 +17,7 @@ Hookpost (https://hookpost.hookstep.in) is a hosted social media scheduler. The 
 ## How to work
 
 1. `hookpost channels --json` lists the connected channels. Map the user's words ("my LinkedIn") to a channel `id`. If two could match, ask which one.
-2. The network they want is not connected? `hookpost connect <platform> --json` (for example `linkedin`, `x`, `threads`, `bluesky`, `instagram`) returns a `url`. Give it to the user; it works for 24 hours. Once they say it is done, run `hookpost channels --json` again for the new id. `hookpost connect --json` lists the platforms a link can add.
+2. The network they want is not connected? `hookpost connect <platform> --json` (for example `linkedin`, `x`, `threads`, `instagram`, `youtube`; Bluesky, Telegram and other networks that need a password or server address are added in the Hookpost app) returns a `url`. Give it to the user; it works for 24 hours. Once they say it is done, run `hookpost channels --json` again for the new id. `hookpost connect --json` lists the platforms a link can add.
 3. Before writing for a network, `hookpost rules <channelId> --json` gives its maximum length, rules and settings. Write each post for its network instead of pasting one text everywhere.
 4. Save drafts unless the user clearly asks to schedule or publish:
    `hookpost post "<text>" --channel <id> --draft --json`
