@@ -27,3 +27,8 @@ jobs:
         run: |
           npm ci
           npm test
+      - name: CLI tests
+        working-directory: cli
+        run: |
+          npm install --no-audit --no-fund
+          npm test

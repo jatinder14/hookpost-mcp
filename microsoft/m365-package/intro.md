@@ -9,7 +9,7 @@ Hookstep, support@hookstep.in
 ## Prerequisites
 
 - A Hookpost account with at least one connected channel. Sign up at https://hookpost.hookstep.in.
-- Every new workspace gets 3 free posts with no card needed. After that, Standard is $19 a month (Rs 599 in India) and Pro is $29 a month (Rs 1,999 in India). See https://hookpost.hookstep.in/pricing.
+- Every new workspace gets 3 free posts with no card needed. After that, the Hookpost plan is $7 a month (Rs 699 in India). See https://hookpost.hookstep.in/pricing.
 
 ## Authentication
 

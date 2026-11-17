@@ -15,7 +15,7 @@
   "settings": [
     {
       "name": "Hookpost API key",
-      "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Standard or Pro plan).",
+      "description": "Your Hookpost workspace API key, from Settings > Developers in Hookpost (Hookpost plan).",
       "envVar": "HOOKPOST_API_KEY",
       "sensitive": true
     }

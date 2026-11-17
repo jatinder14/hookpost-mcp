@@ -1,6 +1,6 @@
 # Hookpost MCP server, CLI and n8n node
 
-**Hookpost by Hookstep.** A social media scheduler you can drive from Claude, Cursor, VS Code, Gemini CLI and other AI assistants. (Not related to the Shopify Flow app called HookPost.)
+**Hookpost by Hookstep.** A social media scheduler your AI agent can run: Claude Code, Cursor, Codex CLI, OpenClaw, ChatGPT, VS Code, Gemini CLI, or plain `npx hookpost` in a terminal. (Not related to the Shopify Flow app called HookPost.)
 
 [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_Hookpost-0098FF?logo=visualstudiocode&logoColor=white)](https://vscode.dev/redirect/mcp/install?name=hookpost&inputs=%5B%7B%22type%22%3A%22promptString%22%2C%22id%22%3A%22hookpost_api_key%22%2C%22description%22%3A%22Hookpost%20API%20key%20%28Settings%20%3E%20Developers%29%22%2C%22password%22%3Atrue%7D%5D&config=%7B%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fhookpost.hookstep.in%2Fapi%2Fmcp%22%2C%22headers%22%3A%7B%22Authorization%22%3A%22Bearer%20%24%7Binput%3Ahookpost_api_key%7D%22%7D%7D) [![Add to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=hookpost&config=eyJ1cmwiOiJodHRwczovL2hvb2twb3N0Lmhvb2tzdGVwLmluL2FwaS9tY3AiLCJoZWFkZXJzIjp7IkF1dGhvcml6YXRpb24iOiJCZWFyZXIgJHtlbnY6SE9PS1BPU1RfQVBJX0tFWX0ifX0%3D) [![Claude Code plugin](https://img.shields.io/badge/Claude_Code-Install_plugin-D97757?logo=claude&logoColor=white)](#claude-code) [![Gemini CLI extension](https://img.shields.io/badge/Gemini_CLI-Install_extension-4285F4?logo=googlegemini&logoColor=white)](#gemini-cli)
 
@@ -11,8 +11,9 @@ Website: https://hookpost.hookstep.in · Setup guide: https://hookpost.hookstep.
 Hookpost runs a hosted MCP server. Connect your AI assistant to it once, and the assistant can:
 
 - list the social channels connected to your Hookpost workspace
+- hand you a link that connects a new channel (LinkedIn, X, Threads, Bluesky, Instagram and more), so a fresh workspace goes from zero channels to posting without leaving the chat
 - read each network's rules: character limits, media rules and the settings a post needs
-- save posts to your Hookpost calendar as drafts, as scheduled posts, or publish them now
+- save posts to your Hookpost calendar as drafts, as scheduled posts, or publish them now, and give you a preview link for each one
 - list what is scheduled between two dates, and change the network settings of a post that has not gone out yet
 - import an image or video from a public URL into your media library
 
@@ -73,7 +74,25 @@ Claude adds remote servers as connectors, not through `claude_desktop_config.jso
 
 ### ChatGPT
 
-A Hookpost app for ChatGPT is not available yet. Until it is, draft in ChatGPT and paste into the Hookpost editor, or use one of the clients on this page.
+ChatGPT connects with a sign-in, so there is no key to paste. On a plan that allows custom MCP servers, add one (Settings → Apps & Connectors → Advanced → Developer mode, then **Create**) with:
+
+```
+https://hookpost.hookstep.in/mcp-oauth
+```
+
+Choose **OAuth** and sign in to Hookpost when ChatGPT asks.
+
+### OpenClaw
+
+Install the Hookpost skill from ClawHub. It drives the `hookpost` CLI, so the agent can post, schedule, attach media and hand you connect and preview links:
+
+```bash
+npx clawhub@latest install hookpost
+npm install -g hookpost
+hookpost login
+```
+
+`hookpost login` opens your browser to approve the terminal, so there is no key to copy. On a server with no browser, set `HOOKPOST_API_KEY` instead.
 
 ### Cursor
 
@@ -174,16 +193,18 @@ Other clients: see https://hookpost.hookstep.in/mcp.
 
 | Tool | What it does |
 |---|---|
-| `integrationList` | Lists your connected channels, optionally for one customer group. |
-| `groupList` | Lists your customer groups. |
-| `integrationSchema` | Returns a network's rules, character limit and the settings a post needs. |
-| `triggerTool` | Calls a channel helper, for example to fetch your Pinterest boards. |
-| `integrationSchedulePostTool` | Creates posts on one or more channels: as a draft, scheduled for a time, or published now. |
-| `postsListTool` | Lists posts between two dates with their state (queued, draft, published or error). |
-| `postSettingsTool` | Changes the network settings of a post that has not gone out yet. Text and date stay as they are. |
-| `uploadFromUrlTool` | Imports an image or video from a public URL into your media library. |
-| `generateImageTool` | Generates an AI image for a post, from the plan's AI image allowance. |
-| `generateVideoOptions`, `videoFunctionTool`, `generateVideoTool` | AI video helpers. No plan on sale includes video credits today. |
+| `list_channels` | Lists your connected channels, optionally for one customer group. |
+| `create_channel_connect_link` | Returns a 24-hour link that connects a new channel; the user opens it and approves on the network's own sign-in. |
+| `list_customer_groups` | Lists your customer groups. |
+| `get_platform_post_rules` | Returns a network's rules, character limit and the settings a post needs. |
+| `list_pinterest_boards`, `list_slack_channels`, `list_discord_channels`, `list_wordpress_post_options` | Look up the ids a post on those networks needs. |
+| `create_post` | Creates posts on one or more channels (draft, scheduled or now), with thread replies or comments, and returns a `previewUrl` for each. |
+| `list_posts` | Lists posts between two dates with their state (queued, draft, published or error). |
+| `update_post_settings` | Changes the network settings of a post that has not gone out yet. Text and date stay as they are. |
+| `upload_media_from_url` | Imports an image or video from a public URL into your media library. |
+| `generate_image` | Generates an AI image for a post, from the plan's AI credits. |
+| `ask_hookpost` | Hands a plain-language request to the assistant built into Hookpost. |
+| `list_video_options`, `get_video_option_values`, `generate_video` | AI video helpers. |
 
 ## Prompts to try
 
@@ -193,16 +214,17 @@ Other clients: see https://hookpost.hookstep.in/mcp.
 
 ## Command line
 
-The `hookpost` CLI uses the same API key. It needs Node.js 18 or later.
+`npx hookpost` is the same API from a terminal, for you or for an agent that prefers shell commands to MCP. Every command takes `--json`.
 
 ```bash
-npm install -g hookpost
-hookpost auth login
-hookpost channels
-hookpost post "Hello" --channel abc123
+npx hookpost login                       # approve in the browser, no key to copy
+npx hookpost channels
+npx hookpost connect linkedin            # link that connects a channel
+npx hookpost post "Hello" --channel abc123 --draft
+npx hookpost preview <postId>
 ```
 
-With no `--at`, a post goes into the next free slot in your posting schedule. Add `--at` with an ISO date for an exact time, `--now` to publish straight away, or `--draft` to save a draft. In CI, set `HOOKPOST_API_KEY` instead of signing in. Source: [`cli/`](cli/).
+Full command list and agent setup: [`cli/README.md`](cli/README.md).
 
 ## n8n
 
@@ -210,13 +232,14 @@ The `n8n-nodes-hookpost` community node creates, lists and deletes posts, lists 
 
 ## Plans and pricing
 
-The MCP server, CLI and REST API come with Hookpost's Standard and Pro plans. New workspaces get 3 free posts with no card needed; then Standard is $19/month (₹599 in India) or Pro $29/month (₹1,999 in India). Current prices are at https://hookpost.hookstep.in/pricing.
+The MCP server, CLI and REST API come with the Hookpost plan. New workspaces get 3 free posts with no card needed; then the Hookpost plan is $7/month (₹699 in India). Current prices are at https://hookpost.hookstep.in/pricing.
 
 ## What's in this repo
 
 | Path | What it is |
 |---|---|
 | [`cli/`](cli/) | Source of the [`hookpost`](https://www.npmjs.com/package/hookpost) CLI on npm |
+| [`openclaw/hookpost/`](openclaw/hookpost/SKILL.md) | OpenClaw / ClawHub skill that drives the `hookpost` CLI |
 | [`n8n-node/`](n8n-node/) | Source of the [`n8n-nodes-hookpost`](https://www.npmjs.com/package/n8n-nodes-hookpost) community node on npm |
 | [`gemini-extension.json`](gemini-extension.json) | Gemini CLI extension that connects to the hosted MCP server |
 | [`plugins/hookpost/`](plugins/hookpost/) | Claude Code plugin (marketplace in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json)) |

@@ -22,11 +22,11 @@ The first time the server connects, Kiro opens the Hookpost sign-in page in your
 
 ## Requirements
 
-A Hookpost workspace on the Standard or Pro plan. New workspaces get 3 free posts with no card needed; then Standard is $19/month (₹599 in India) or Pro $29/month (₹1,999 in India): https://hookpost.hookstep.in/pricing.
+A Hookpost workspace on the Hookpost plan. New workspaces get 3 free posts with no card needed; then the Hookpost plan is $7/month (₹699 in India): https://hookpost.hookstep.in/pricing.
 
 ## Tools
 
-`integrationList`, `groupList`, `integrationSchema`, `triggerTool`, `integrationSchedulePostTool`, `postsListTool`, `postSettingsTool`, `uploadFromUrlTool`, `generateImageTool`. There is no delete tool; deleting posts and changing the text or date of an existing post stay in the Hookpost app. See the [main README](../../README.md#tools) for details.
+`list_channels`, `create_channel_connect_link`, `list_customer_groups`, `get_platform_post_rules`, `list_pinterest_boards`, `list_slack_channels`, `list_discord_channels`, `list_wordpress_post_options`, `create_post`, `list_posts`, `update_post_settings`, `upload_media_from_url`. There is no delete tool; deleting posts and changing the text or date of an existing post stay in the Hookpost app. See the [main README](../../README.md#tools) for details.
 
 ## Privacy and support
 
