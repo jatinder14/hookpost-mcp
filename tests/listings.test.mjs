@@ -98,16 +98,16 @@ describe('every listing file', () => {
   });
 
   test('every price quoted is the current one', () => {
-    // Standard $19 / Rs 599, Pro $29 / Rs 1,999 (hookpost.hookstep.in/pricing, 2 Nov 2026)
-    const allowed = new Set(['$19', '$29', '599', '1,999']);
+    // One paid plan, Hookpost: $7 a month, Rs 699 in India (hookpost.hookstep.in/pricing
+    // and pricing.ts HOOKPOST_PRICE, 17 Nov 2026). Standard and Pro are retired.
+    const allowed = new Set(['$7', '699']);
     for (const file of listingFiles()) {
       for (const price of read(file).match(/\$\d[\d,]*|(?:\bRs\.?|₹)\s?\d[\d,]*/g) || []) {
         const amount = price.replace(/^(?:Rs\.?|₹)\s?/, '');
         assert.ok(allowed.has(amount) || allowed.has(price), `${file} quotes ${price}`);
       }
-      // Each plan carries its own price: Standard is never $29 / 1,999, Pro never $19 / 599.
-      assert.doesNotMatch(read(file), /Standard[^.$₹]{0,30}(?:\$29|(?:Rs\.?|₹)\s?1,999)/, `${file} prices Standard as Pro`);
-      assert.doesNotMatch(read(file), /\bPro[^.$₹]{0,30}(?:\$19|(?:Rs\.?|₹)\s?599)/, `${file} prices Pro as Standard`);
+      // The retired plans are not offered.
+      assert.doesNotMatch(read(file), /\b(?:Standard|Pro) plan\b/, `${file} offers a retired plan`);
     }
   });
 });

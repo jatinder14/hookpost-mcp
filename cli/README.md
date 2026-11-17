@@ -1,88 +1,175 @@
 # hookpost
 
-Schedule and publish social media posts from your terminal, powered by [Hookpost](https://hookpost.hookstep.in).
+Let your AI agent run your social media. `hookpost` is the command line for [Hookpost](https://hookpost.hookstep.in): Claude Code, Cursor, Codex CLI, OpenClaw or you can list channels, connect new ones, write, schedule and publish posts, attach media, and get a preview link for every post.
 
-## Install
-
-```bash
-npm install -g hookpost
-```
-
-## Sign in
+X, LinkedIn, Threads, Bluesky, Instagram, Facebook Pages, YouTube, TikTok, Pinterest, Discord, Slack, Telegram, Dev.to, Hashnode, WordPress, Nostr and Lemmy.
 
 ```bash
-hookpost auth login
+npx hookpost login
+npx hookpost channels
+npx hookpost post "Shipped dark mode today." --channel <id> --draft
 ```
 
-It asks for your API key — find it in Hookpost under **Settings → Developers** — verifies it before saving, and stores it at `~/.hookpost/config.json` with owner-only permissions.
-
-In CI, skip the login and set an environment variable instead:
+## 1. Sign in
 
 ```bash
-export HOOKPOST_API_KEY="your_key"
+npx hookpost login
 ```
 
-## Commands
+It prints a short code and opens your browser. Check the code matches, click **Approve**, and the terminal is signed in. There is no key to find or copy. The key is saved at `~/.hookpost/config.json`, readable only by you.
 
-```
-auth login              Store your API key
-auth status             Show who you are signed in as
-auth logout             Remove the stored key
-
-channels                List your connected channels
-posts [--days N]        List upcoming posts (default 7 days)
-post <text>             Create a post
-delete <postId>         Delete a post
-slot [channelId]        Show the next free slot
-```
-
-### Creating posts
+No browser (a server, CI, a container)? Use your workspace API key from **Settings → Developers** instead:
 
 ```bash
-# Schedule into your next free slot
-hookpost post "Shipped something small today." --channel abc123
-
-# Pick an exact time
-hookpost post "Launch day" --channel abc123 --at 2026-09-10T09:00:00Z
-
-# Publish immediately
-hookpost post "Live now" --channel abc123 --now
-
-# Save a draft
-hookpost post "Rough idea" --channel abc123 --draft
+export HOOKPOST_API_KEY="your_key"          # nothing is written to disk
+npx hookpost login --key "your_key"         # or save it
 ```
 
-Run `hookpost channels` to get channel ids.
+New workspaces get 3 free posts with no card needed, then the Hookpost plan is $7 a month. Prices: https://hookpost.hookstep.in/pricing
 
-Omit `--at` on a scheduled post and the CLI asks Hookpost for the next free slot in your posting schedule — the same default the web app uses.
+## 2. Give it to your agent
 
-### Channel settings
+Each agent can use Hookpost two ways: the hosted **MCP server** (tools the agent calls directly) or this **CLI** (shell commands). Pick one.
 
-Some channels need extra fields. YouTube wants a title and visibility:
+### Claude Code
 
 ```bash
-hookpost post "New video" --channel abc123 --now \
-  --settings '{"__type":"youtube","title":"My video","type":"private","selfDeclaredMadeForKids":"no"}'
+claude mcp add --transport http hookpost https://hookpost.hookstep.in/api/mcp \
+  --header "Authorization: Bearer $HOOKPOST_API_KEY"
 ```
 
-Call `/public/v1/integration-settings/:id` to see what a given channel expects.
+Or the plugin, which adds the server and a skill that checks each network's rules and saves drafts first:
+
+```
+/plugin marketplace add jatinder14/hookpost-mcp
+/plugin install hookpost@hookpost
+```
+
+Or nothing at all: Claude Code can run `npx hookpost` itself once you have signed in.
+
+### Cursor
+
+`~/.cursor/mcp.json` (or `.cursor/mcp.json` in a project):
+
+```json
+{
+  "mcpServers": {
+    "hookpost": {
+      "url": "https://hookpost.hookstep.in/api/mcp",
+      "headers": { "Authorization": "Bearer ${env:HOOKPOST_API_KEY}" }
+    }
+  }
+}
+```
+
+### Codex CLI
+
+`~/.codex/config.toml`:
+
+```toml
+[mcp_servers.hookpost]
+url = "https://hookpost.hookstep.in/api/mcp"
+bearer_token_env_var = "HOOKPOST_API_KEY"
+```
+
+### OpenClaw
+
+```bash
+npx clawhub@latest install hookpost
+npm install -g hookpost && hookpost login
+```
+
+The skill tells the agent which `hookpost` commands to run and to save drafts until you say otherwise.
+
+### ChatGPT
+
+ChatGPT signs in with OAuth, so no key. Add a custom MCP server (Settings → Apps & Connectors → Advanced → Developer mode → **Create**) with the URL `https://hookpost.hookstep.in/mcp-oauth`, choose OAuth, and sign in to Hookpost.
+
+`hookpost mcp <client>` prints any of these for you: `claude-code`, `cursor`, `codex`, `openclaw`, `chatgpt`, `json`.
+
+## 3. Commands
+
+```
+login                     Sign in from your browser (no key to copy)
+login --key <key>         Sign in with an API key
+logout | whoami
+
+channels                  Connected channels and their ids
+connect [platform]        A 24-hour link that connects a new channel
+rules <channelId>         A channel's length limit, rules and settings schema
+
+post "<text>"             Create a post
+schedule "<text>" --at    Same, with a required time
+posts [--days 7]          Posts in the next N days
+preview <postId>          Link that shows the post as it will look
+delete <postId>           Delete a post
+slot <channelId>          Next free slot of a channel
+
+upload <file|url>         Upload an image or video
+analytics <channelId>     Channel analytics   [--days 7]
+analytics post <postId>   Post analytics      [--days 7]
+
+mcp [client]              MCP setup for an agent
+```
+
+`post` and `schedule` take:
+
+| Option | What it does |
+|---|---|
+| `--channel <id>` | Channel to post to. Repeat it, or pass `a,b,c`, for several. |
+| `--at <ISO date>` | When to publish, e.g. `2026-12-01T09:30:00Z`. A time with no zone is read as UTC. |
+| `--now` | Publish straight away. |
+| `--draft` | Save a draft; nothing goes out. |
+| `--media <file\|url>` | Attach an image or video. Repeat for several. |
+| `--thread "<text>"` | A follow-up under the post: a thread reply on X, Threads and Bluesky, a comment elsewhere. Repeatable. |
+| `--settings <json>` | Per-channel settings (YouTube title, Pinterest board...). See `hookpost rules <channelId>`. |
+
+With none of `--at`, `--now` or `--draft`, the post goes into the channel's next free slot.
+
+### `--json`
+
+Every command takes `--json`: one JSON value on stdout, progress on stderr, and errors as `{"error": "...", "status": 401}` with exit code 1. That is the mode for agents.
+
+```bash
+$ hookpost post "Hello" --channel cm123 --draft --json
+{
+  "type": "draft",
+  "date": null,
+  "posts": [
+    {
+      "postId": "cm9...",
+      "integration": "cm123",
+      "previewUrl": "https://hookpost.hookstep.in/p/cm9...?share=true"
+    }
+  ]
+}
+```
+
+## Examples
+
+```bash
+# A thread on X, saved as a draft
+hookpost post "I let Claude run my social media for a week. 1/" \
+  --thread "2/ It writes, I approve." --channel <x-id> --draft
+
+# One post to three channels at 9:30 UTC tomorrow
+hookpost schedule "Launch day" --channel <x>,<linkedin>,<bluesky> --at 2026-12-01T09:30:00Z
+
+# With an image
+hookpost post "New dashboard" --media ./shot.png --channel <id>
+
+# No LinkedIn yet? Get a link that connects it
+hookpost connect linkedin
+```
 
 ## Environment
 
-| Variable | Purpose |
+| Variable | Use |
 |---|---|
-| `HOOKPOST_API_KEY` | Use instead of `auth login` — handy in CI |
-| `HOOKPOST_API_URL` | Override the API host (for example a staging server) |
+| `HOOKPOST_API_KEY` | Use this key instead of the saved one. |
+| `HOOKPOST_API_URL` | Another API host (default `https://hookpost.hookstep.in/api`). |
+| `NO_COLOR` | Plain output. |
 
-## Security
+Node.js 18 or later. API reference: https://hookpost.hookstep.in/docs/public-api · MCP: https://hookpost.hookstep.in/mcp · Support: support@hookstep.in
 
-The API key grants full access to your organisation's channels and posts. Keep it out of shared shells and public repos; prefer `HOOKPOST_API_KEY` from a secret store in automation.
-
-## Documentation
-
-- [Public API reference](https://hookpost.hookstep.in/docs/public-api)
-- [OAuth apps](https://hookpost.hookstep.in/docs/oauth) — for acting on other people's accounts
-
-## Licence
-
-MIT. Copyright (c) 2026 Hookstep. See [LICENSE](https://github.com/jatinder14/hookpost-mcp/blob/main/LICENSE).
+MIT licence. Hookpost by Hookstep.

@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "title": "Hookpost",
-    "description": "Draft and schedule social media posts on the channels connected to your Hookpost workspace. New workspaces get 3 free posts; then Standard $19/month or Pro $29/month.",
+    "description": "Draft and schedule social media posts on the channels connected to your Hookpost workspace. New workspaces get 3 free posts; then the Hookpost plan, $7/month.",
     "version": "1.0.0",
     "contact": {
       "name": "Hookstep",
