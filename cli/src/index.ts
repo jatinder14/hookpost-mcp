@@ -221,7 +221,7 @@ ${c.bold('Sign in')}
 ${c.bold('Channels')}
   channels                  List connected channels (ids for --channel)
   connect [platform]        Link that connects a new channel (x, linkedin,
-                            threads, bluesky, instagram...); no platform lists them
+                            threads, instagram, youtube...); no platform lists them
   rules <channelId>         A channel's length limit, rules and settings schema
 
 ${c.bold('Posts')}

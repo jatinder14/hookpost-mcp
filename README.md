@@ -11,7 +11,7 @@ Website: https://hookpost.hookstep.in · Setup guide: https://hookpost.hookstep.
 Hookpost runs a hosted MCP server. Connect your AI assistant to it once, and the assistant can:
 
 - list the social channels connected to your Hookpost workspace
-- hand you a link that connects a new channel (LinkedIn, X, Threads, Bluesky, Instagram and more), so a fresh workspace goes from zero channels to posting without leaving the chat
+- hand you a link that connects a new channel (LinkedIn, X, Threads, Instagram, YouTube, TikTok and more), so a fresh workspace goes from zero channels to posting without leaving the chat
 - read each network's rules: character limits, media rules and the settings a post needs
 - save posts to your Hookpost calendar as drafts, as scheduled posts, or publish them now, and give you a preview link for each one
 - list what is scheduled between two dates, and change the network settings of a post that has not gone out yet
