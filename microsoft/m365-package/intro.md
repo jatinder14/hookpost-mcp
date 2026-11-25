@@ -19,14 +19,19 @@ OAuth 2.0 authorization code flow (PKCE with S256 supported), scopes `mcp:read` 
 
 | Tool | What it does |
 | --- | --- |
-| `integrationList` | Lists the channels connected to the workspace, optionally for one customer group. |
-| `groupList` | Lists the workspace's customer groups. |
-| `integrationSchema` | Returns a network's rules: character limits, media rules and the settings a post needs. |
-| `triggerTool` | Calls a network helper named by `integrationSchema`, for example to look up a board or a playlist id. |
-| `integrationSchedulePostTool` | Saves one or more posts as drafts, schedules them, or publishes them now. |
-| `postsListTool` | Lists posts between two dates, in any state. |
-| `postSettingsTool` | Changes the network settings of a post that has not been published yet. |
-| `uploadFromUrlTool` | Imports an image or video from a public URL into the workspace's media library. |
+| `list_channels` | Lists the channels connected to the workspace, optionally for one customer group. |
+| `list_customer_groups` | Lists the workspace's customer groups. |
+| `create_channel_connect_link` | Returns a link that connects a new social account; nothing is connected until the user opens it and approves. |
+| `get_platform_post_rules` | Returns a network's rules: length limit and the settings a post needs, with the lookup tool for each id. |
+| `list_pinterest_boards` | Lists the boards of a connected Pinterest account. |
+| `list_slack_channels` | Lists the channels of a connected Slack workspace. |
+| `list_discord_channels` | Lists the channels of a connected Discord server. |
+| `list_wordpress_post_options` | Lists the post types, categories and tags of a connected WordPress site. |
+| `create_post` | Saves one or more posts as drafts, schedules them, or publishes them now. |
+| `list_posts` | Lists posts between two dates, in any state. |
+| `update_post_settings` | Changes the network settings of a post that has not been published yet. |
+| `update_post_media` | Replaces the images or videos of a post that has not been published yet. |
+| `upload_media_from_url` | Copies an image or video from a public URL into the workspace's media library. |
 
 ## Getting started
 
