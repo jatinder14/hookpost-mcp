@@ -1,8 +1,41 @@
 {
   "tools": [
     {
-      "name": "groupList",
-      "description": "This tool lists the available groups (customers). Use a group id with the integrationList tool to filter the integrations belonging to that group",
+      "name": "list_channels",
+      "description": "Lists the social media channels connected to this Hookpost workspace, each with its id, name, profile picture and platform identifier. Use this when the user asks which accounts are connected, or to get the channel id and platform that create_post, get_platform_post_rules and the lookup tools need. Pass `group` to list only one customer group's channels. It only reads: to add a channel use create_channel_connect_link; channels are removed in the Hookpost app.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string",
+            "description": "Optional. A customer group id from list_customer_groups; only the channels of that group are returned. Leave out to list every channel."
+          }
+        },
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "create_channel_connect_link",
+      "description": "Creates a link that connects a new social media account to this Hookpost workspace. Use this when the user wants to add a channel, or when list_channels shows no channel for the platform they want to post to. Give the returned url to the user: opening it in a browser takes them to the platform's own sign-in and approval screen, and the channel is added once they approve. Nothing is connected until the user opens the link and approves, so call list_channels afterwards to get the new channel id. The link works for 24 hours and can be opened more than once. It cannot reconnect an existing channel. Platforms that need a server address, typed credentials, a wallet or the browser extension are added in the Hookpost app; for those the result has an error that says so.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string",
+            "description": "Platform identifier of the network to connect, one of: x, linkedin, instagram, instagram-standalone, facebook, threads, youtube, tiktok, pinterest, discord, slack."
+          }
+        },
+        "required": [
+          "platform"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "list_customer_groups",
+      "description": "Lists the customer groups of this Hookpost workspace, each with its id and name. A customer group is a set of channels kept together for one client or brand. Use this when the user names a client, brand or customer, to get the group id that list_channels and list_posts take as a filter. It only reads. A workspace that has no customer groups returns an empty list; groups are managed in the Hookpost app.",
       "inputSchema": {
         "type": "object",
         "properties": {},
@@ -11,116 +44,134 @@
       }
     },
     {
-      "name": "integrationList",
-      "description": "This tool list available integrations to schedule posts to. Optionally pass a group id (from the groupList tool) to only list integrations belonging to that group",
-      "inputSchema": {
-        "type": "object",
-        "properties": {
-          "group": {
-            "type": "string",
-            "description": "Optional group (customer) id from the groupList tool to filter the integrations"
-          }
-        },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#"
-      }
-    },
-    {
-      "name": "integrationSchema",
-      "description": "Everytime we want to schedule a social media post, we need to understand the schema of the integration.\n         This tool helps us get the schema of the integration.\n         Sometimes we might get a schema back the requires some id, for that, you can get information from 'tools'\n         And use the triggerTool function.\n        ",
+      "name": "get_platform_post_rules",
+      "description": "Returns what a post has to satisfy on one social platform: its posting rules as text, the maximum post length, and each setting a post there takes (name, type, whether it is needed, allowed values, and the lookup tool that lists its values, if any). Use this when you are about to call create_post or update_post_settings, once for each platform involved. Pass the settings to create_post as one object with \"platform\" set to this platform. The answer is fixed data about the platform: it reads nothing from the user's accounts and changes nothing. An unknown platform returns empty rules and no settings.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "isPremium": {
             "type": "boolean",
-            "description": "is this the user premium? if not, set to false"
+            "description": "True only when the channel is an X account with X Premium, which has a higher length limit. False for every other platform, and when unsure."
           },
           "platform": {
             "type": "string",
-            "description": "platform identifier (x, linkedin, linkedin-page, instagram, instagram-standalone, facebook, threads, youtube, gmb, tiktok, tiktok-business, pinterest, dribbble, discord, slack, kick, twitch, mastodon, bluesky, lemmy, wrapcast, telegram, nostr, vk, medium, devto, hashnode, wordpress, listmonk, moltbook, whop, skool, mewe, tumblr)"
+            "description": "Platform identifier of the channel, as list_channels returns it in \"platform\". One of: x, linkedin, linkedin-page, instagram, instagram-standalone, facebook, threads, youtube, gmb, tiktok, tiktok-business, pinterest, dribbble, discord, slack, kick, twitch, mastodon, bluesky, lemmy, wrapcast, telegram, nostr, vk, medium, devto, hashnode, wordpress, listmonk, moltbook, whop, skool, mewe, tumblr"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "required": [
           "isPremium",
           "platform"
-        ]
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
       }
     },
     {
-      "name": "triggerTool",
-      "description": "Use this to call a provider helper function (a methodName from the integrationSchema callable tools) that fetches provider-specific data needed for settings, like ids or search results.\n      Some helper functions require values provided by the user, like a word to search for. methodName is required [input:callable-tools].\n      If provider auth is expired, this tool may refresh the stored integration token; if refresh fails, it marks the channel as needing reconnect and notifies the organization.",
+      "name": "list_pinterest_boards",
+      "description": "Lists the boards of one connected Pinterest account, with the id and name of each. Use this when you are about to call create_post or update_post_settings for a Pinterest channel: every pin needs the id of a board. It only reads from Pinterest and changes nothing. An empty list means the account has no boards yet, or its sign-in has expired.",
       "inputSchema": {
         "type": "object",
         "properties": {
-          "integrationId": {
+          "channelId": {
             "type": "string",
-            "description": "The id of the integration"
-          },
-          "methodName": {
-            "type": "string",
-            "description": "The methodName from the `integrationSchema` functions in the tools array, required"
-          },
-          "dataSchema": {
-            "type": "array",
-            "items": {
-              "type": "object",
-              "properties": {
-                "key": {
-                  "type": "string",
-                  "description": "Name of the settings key to pass"
-                },
-                "value": {
-                  "type": "string",
-                  "description": "Value of the key"
-                }
-              },
-              "required": [
-                "key",
-                "value"
-              ],
-              "additionalProperties": false
-            }
+            "minLength": 1,
+            "description": "Id of a Pinterest channel, from list_channels (\"id\")"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "required": [
-          "integrationId",
-          "methodName",
-          "dataSchema"
-        ]
+          "channelId"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
       }
     },
     {
-      "name": "integrationSchedulePostTool",
-      "description": "\nUse this when the user wants to create a draft, scheduled, or immediate social media post on their connected channels, based on the integrationSchema tool.\nExamples of the input shape:\n\nA single LinkedIn post with one comment\n- socialPost array length will be one\n- postsAndComments array length will be two (one for the post, one for the comment)\n\n20 Facebook posts each on individual days without comments\n- socialPost array length will be 20\n- postsAndComments array length will be one\n\nDo not use this to update or delete existing posts.\nIf validation fails, the result contains output.errors describing what to fix; the call can be retried with corrected parameters.\n",
+      "name": "list_slack_channels",
+      "description": "Lists the public and private channels of one connected Slack workspace, with the id and name of each. Use this when you are about to call create_post or update_post_settings for a Slack channel: every Slack post needs the id of the channel it goes to. It only reads from Slack and changes nothing. Hookpost can post only in channels its Slack app was added to.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Id of a Slack channel, from list_channels (\"id\")"
+          }
+        },
+        "required": [
+          "channelId"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "list_discord_channels",
+      "description": "Lists the text, announcement and forum channels of one connected Discord server, with the id and name of each. Use this when you are about to call create_post or update_post_settings for a Discord channel: every Discord post needs the id of the channel it goes to. It only reads from Discord and changes nothing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Id of a Discord channel, from list_channels (\"id\")"
+          }
+        },
+        "required": [
+          "channelId"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "list_wordpress_post_options",
+      "description": "Lists, for one connected WordPress site, its post types, categories and tags, with the id and name of each (up to 100 categories and 100 tags). Use this when you are about to call create_post or update_post_settings for a WordPress channel: every post needs a post type id, and categories and tags are given by id. It only reads from the site and changes nothing.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "channelId": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Id of a WordPress channel, from list_channels (\"id\")"
+          }
+        },
+        "required": [
+          "channelId"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "create_post",
+      "description": "Creates one or more posts on the user's connected channels: saved as a draft, scheduled for a date and time, or published now. Use this when the user asks to draft, schedule, queue or publish a social media post. First get the channel ids from list_channels and call get_platform_post_rules for each platform, for its length limit and required settings. Ids for settings come from list_pinterest_boards, list_slack_channels, list_discord_channels and list_wordpress_post_options. A scheduled or published post goes out on the social network, where it is public and these tools cannot withdraw it, so use type \"schedule\" or \"now\" only when the user asked for that; type \"draft\" only saves the post in Hookpost. Each item in socialPost is one post on one channel. In postsAndComments the first entry is the post and each later entry is a follow-up under it: a thread reply on X, Threads and Bluesky, a comment on other platforms. For example, one LinkedIn post with one comment is one socialPost item with two postsAndComments entries. This tool does not edit or delete existing posts, and calling it again with the same input creates the posts again. Returns the id of each post created with its channel id and a previewUrl: a page that shows the post as it will look, which the user can open or send to someone to review it. If validation fails, nothing is created and output.errors says what to fix.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "socialPost": {
             "type": "array",
-            "description": "Individual post",
             "items": {
               "type": "object",
-              "additionalProperties": false,
               "properties": {
                 "integrationId": {
                   "type": "string",
-                  "description": "The id of the integration (not internal id)"
+                  "description": "Channel id, from list_channels (\"id\")"
                 },
                 "isPremium": {
                   "type": "boolean",
-                  "description": "If the integration is X, return if it's premium or not"
+                  "description": "True only when the channel is an X account with X Premium. False for every other channel."
                 },
                 "date": {
                   "type": "string",
-                  "description": "The date of the post in UTC time"
+                  "description": "Date and time the post goes out, in UTC, ISO 8601, for example 2026-12-01T10:00:00. For type \"now\", the current time."
                 },
                 "shortLink": {
                   "type": "boolean",
-                  "description": "If the post has a link inside, we can ask the user if they want to add a short link"
+                  "description": "True to replace the links in the text with Hookpost short links, which count clicks. False keeps the links as written; use false unless the user asked for short links."
+                },
+                "remindMe": {
+                  "type": "boolean",
+                  "description": "Optional. True only when the user wants to post it themselves, for example to add music in the Instagram, TikTok or YouTube app: at the scheduled time Hookpost emails them the media and caption and does not publish. Leave out to publish automatically."
                 },
                 "type": {
                   "type": "string",
@@ -129,56 +180,1042 @@
                     "schedule",
                     "now"
                   ],
-                  "description": "The type of the post, if we pass now, we should pass the current date also"
-                },
-                "remindMe": {
-                  "type": "boolean",
-                  "description": "Only when the user asks to post it themselves (e.g. to add music in the Instagram/TikTok/YouTube app): Hookpost then emails them the media and caption at the scheduled time instead of publishing. Leave out to publish automatically."
+                  "description": "\"draft\" saves the post in Hookpost without publishing it, \"schedule\" publishes it at date, \"now\" publishes it immediately"
                 },
                 "postsAndComments": {
                   "type": "array",
-                  "description": "first item is the post, every other item is the comments",
                   "items": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                       "content": {
                         "type": "string",
-                        "description": "The content of the post, HTML, Each line must be wrapped in <p> here is the possible tags: h1, h2, h3, u, strong, li, ul, p (you can't have u and strong together)"
+                        "description": "Text of the post, as HTML. Wrap each line in <p>. Allowed tags: h1, h2, h3, u, strong, li, ul, p. Do not put u and strong on the same text."
                       },
                       "attachments": {
                         "type": "array",
-                        "description": "The image of the post (URLS)",
                         "items": {
                           "type": "string"
-                        }
+                        },
+                        "description": "URLs of the images or videos to attach, from the Hookpost media library: the \"path\" values that upload_media_from_url and list_posts return. An empty array for a text-only post."
                       }
                     },
                     "required": [
                       "content",
                       "attachments"
-                    ]
-                  }
-                },
-                "settings": {
-                  "type": "array",
-                  "description": "This relies on the integrationSchema tool to get the settings [input:settings]",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "key": {
-                        "type": "string",
-                        "description": "Name of the settings key to pass"
-                      },
-                      "value": {
-                        "description": "Value of the key, always prefer the id then label if possible"
-                      }
-                    },
-                    "required": [
-                      "key"
                     ],
                     "additionalProperties": false
-                  }
+                  },
+                  "description": "The first entry is the post. Each later entry is a follow-up under it: a thread reply or a comment, depending on the platform."
+                },
+                "settings": {
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "x"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": x"
+                        },
+                        "who_can_reply_post": {
+                          "type": "string",
+                          "enum": [
+                            "everyone",
+                            "following",
+                            "mentionedUsers",
+                            "subscribers",
+                            "verified"
+                          ],
+                          "description": "Who can reply to the post. Needed for a normal post, not for an article."
+                        },
+                        "post_type": {
+                          "type": "string",
+                          "enum": [
+                            "post",
+                            "article"
+                          ],
+                          "description": "A normal post, or a long-form X article. A normal post when left out."
+                        },
+                        "article_title": {
+                          "type": "string",
+                          "description": "Title of the article. Needed when the post is an article."
+                        },
+                        "article_status": {
+                          "type": "string",
+                          "enum": [
+                            "draft",
+                            "published"
+                          ],
+                          "description": "For an article: keep it as a draft on X, or publish it. Needed when the post is an article."
+                        },
+                        "community": {
+                          "type": "string",
+                          "description": "Link of an X Community to post in, for example https://x.com/i/communities/123. Leave out to post on the timeline."
+                        },
+                        "made_with_ai": {
+                          "type": "boolean",
+                          "description": "True when the media was made with AI, so X labels it."
+                        },
+                        "paid_partnership": {
+                          "type": "boolean",
+                          "description": "True when the post is a paid partnership, so X labels it."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "linkedin",
+                            "linkedin-page"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": linkedin or linkedin-page"
+                        },
+                        "post_as_images_carousel": {
+                          "type": "boolean",
+                          "description": "True to post the attached images as one swipeable document (carousel)."
+                        },
+                        "carousel_name": {
+                          "type": "string",
+                          "description": "Title of that carousel document."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "instagram",
+                            "instagram-standalone"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": instagram or instagram-standalone"
+                        },
+                        "post_type": {
+                          "type": "string",
+                          "enum": [
+                            "post",
+                            "story"
+                          ],
+                          "description": "Feed post (a reel for a video) or story."
+                        },
+                        "is_trial_reel": {
+                          "type": "boolean",
+                          "description": "True to show the reel to non-followers first, before followers see it."
+                        },
+                        "graduation_strategy": {
+                          "type": "string",
+                          "enum": [
+                            "MANUAL",
+                            "SS_PERFORMANCE"
+                          ],
+                          "description": "For such a reel: share it with followers by hand (MANUAL) or when it performs well (SS_PERFORMANCE)."
+                        },
+                        "is_ai_generated": {
+                          "type": "boolean",
+                          "description": "True when the media was made with AI, so Instagram labels it."
+                        },
+                        "collaborators": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "label": {
+                                "type": "string",
+                                "description": "The username, without the @"
+                              }
+                            },
+                            "required": [
+                              "label"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 3,
+                          "description": "Instagram usernames to invite as collaborators, without the @."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "post_type"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "facebook"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": facebook"
+                        },
+                        "post_type": {
+                          "type": "string",
+                          "enum": [
+                            "post",
+                            "story"
+                          ],
+                          "description": "Page post or story. A post when left out."
+                        },
+                        "url": {
+                          "type": "string",
+                          "description": "Link to attach to the post, shown as a preview card."
+                        },
+                        "text_format_preset_id": {
+                          "type": "string",
+                          "description": "Id of a Facebook coloured background for a short text-only post (130 characters at most)."
+                        },
+                        "made_with_ai": {
+                          "type": "boolean",
+                          "description": "True when the text or pictures were made with AI, so Facebook labels the post. Text, link and photo posts only; ignored for videos and stories."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "youtube"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": youtube"
+                        },
+                        "title": {
+                          "type": "string",
+                          "minLength": 2,
+                          "maxLength": 100,
+                          "description": "Title of the video, 2 to 100 characters."
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "public",
+                            "private",
+                            "unlisted"
+                          ],
+                          "description": "Who can watch the video."
+                        },
+                        "selfDeclaredMadeForKids": {
+                          "type": "string",
+                          "enum": [
+                            "yes",
+                            "no"
+                          ],
+                          "description": "Whether the video is made for children, as YouTube asks."
+                        },
+                        "made_with_ai": {
+                          "type": "boolean",
+                          "description": "True when the video has realistic AI-made or altered content, so YouTube shows its altered or synthetic content label. Not needed for animation or clearly unrealistic content."
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "string",
+                                "description": "The tag"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "The tag again, as shown to readers"
+                              }
+                            },
+                            "required": [
+                              "value",
+                              "label"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Video tags; each tag goes in both value and label. 500 characters in all at most."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "title",
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "tiktok",
+                            "tiktok-business"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": tiktok or tiktok-business"
+                        },
+                        "content_posting_method": {
+                          "type": "string",
+                          "enum": [
+                            "DIRECT_POST",
+                            "UPLOAD"
+                          ],
+                          "description": "DIRECT_POST publishes on TikTok; UPLOAD sends the video to the TikTok inbox for the user to finish in the app."
+                        },
+                        "privacy_level": {
+                          "type": "string",
+                          "enum": [
+                            "PUBLIC_TO_EVERYONE",
+                            "MUTUAL_FOLLOW_FRIENDS",
+                            "FOLLOWER_OF_CREATOR",
+                            "SELF_ONLY"
+                          ],
+                          "description": "Who can see the post. Needed for a direct post, and only the user can choose it: ask them."
+                        },
+                        "title": {
+                          "type": "string",
+                          "maxLength": 90,
+                          "description": "Title of a photo post, 90 characters at most."
+                        },
+                        "comment": {
+                          "type": "boolean",
+                          "description": "True to allow comments."
+                        },
+                        "duet": {
+                          "type": "boolean",
+                          "description": "True to allow duets."
+                        },
+                        "stitch": {
+                          "type": "boolean",
+                          "description": "True to allow stitches."
+                        },
+                        "autoAddMusic": {
+                          "type": "string",
+                          "enum": [
+                            "yes",
+                            "no"
+                          ],
+                          "description": "For a photo post: let TikTok add music."
+                        },
+                        "disclose": {
+                          "type": "boolean",
+                          "description": "True when the post promotes a brand, product or service."
+                        },
+                        "brand_organic_toggle": {
+                          "type": "boolean",
+                          "description": "True when it promotes the user's own brand."
+                        },
+                        "brand_content_toggle": {
+                          "type": "boolean",
+                          "description": "True when it is paid content for a third party; it cannot then be private."
+                        },
+                        "video_made_with_ai": {
+                          "type": "boolean",
+                          "description": "True when the video was made with AI, so TikTok labels it."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "content_posting_method",
+                        "comment",
+                        "brand_organic_toggle",
+                        "brand_content_toggle"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "pinterest"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": pinterest"
+                        },
+                        "board": {
+                          "type": "string",
+                          "description": "Id of the board to pin to, from list_pinterest_boards."
+                        },
+                        "title": {
+                          "type": "string",
+                          "maxLength": 100,
+                          "description": "Title of the pin, 100 characters at most."
+                        },
+                        "link": {
+                          "type": "string",
+                          "description": "Link the pin opens."
+                        },
+                        "dominant_color": {
+                          "type": "string",
+                          "description": "Background colour of the pin as a hex code, for example #6E4A3C."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "board"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "discord"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": discord"
+                        },
+                        "channel": {
+                          "type": "string",
+                          "description": "Id of the Discord channel to post in, from list_discord_channels."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "channel"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "slack"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": slack"
+                        },
+                        "channel": {
+                          "type": "string",
+                          "description": "Id of the Slack channel to post in, from list_slack_channels."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "channel"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "wordpress"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": wordpress"
+                        },
+                        "title": {
+                          "type": "string",
+                          "minLength": 2,
+                          "description": "Title of the WordPress post."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Post type id, from list_wordpress_post_options (postTypes), usually posts."
+                        },
+                        "status": {
+                          "type": "string",
+                          "enum": [
+                            "publish",
+                            "draft",
+                            "pending",
+                            "private"
+                          ],
+                          "description": "Status the post gets in WordPress. Published when left out."
+                        },
+                        "categories": {
+                          "type": "array",
+                          "items": {
+                            "type": "number",
+                            "description": "An id from the list"
+                          },
+                          "description": "Category ids, from list_wordpress_post_options (categories)."
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "number",
+                            "description": "An id from the list"
+                          },
+                          "description": "Tag ids, from list_wordpress_post_options (tags)."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "title",
+                        "type"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "gmb"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": gmb"
+                        },
+                        "topicType": {
+                          "type": "string",
+                          "enum": [
+                            "STANDARD",
+                            "EVENT",
+                            "OFFER"
+                          ],
+                          "description": "Kind of Google Business Profile update. STANDARD when left out."
+                        },
+                        "callToActionType": {
+                          "type": "string",
+                          "enum": [
+                            "NONE",
+                            "BOOK",
+                            "ORDER",
+                            "SHOP",
+                            "LEARN_MORE",
+                            "SIGN_UP",
+                            "GET_OFFER",
+                            "CALL"
+                          ],
+                          "description": "Button shown on the update."
+                        },
+                        "callToActionUrl": {
+                          "type": "string",
+                          "description": "Link of that button. Needed for every button except NONE and CALL."
+                        },
+                        "eventTitle": {
+                          "type": "string",
+                          "description": "Title of the event. Needed for an EVENT update."
+                        },
+                        "eventStartDate": {
+                          "type": "string",
+                          "description": "Event start date, YYYY-MM-DD."
+                        },
+                        "eventEndDate": {
+                          "type": "string",
+                          "description": "Event end date, YYYY-MM-DD."
+                        },
+                        "eventStartTime": {
+                          "type": "string",
+                          "description": "Event start time, HH:MM."
+                        },
+                        "eventEndTime": {
+                          "type": "string",
+                          "description": "Event end time, HH:MM."
+                        },
+                        "offerCouponCode": {
+                          "type": "string",
+                          "description": "Coupon code of an OFFER update."
+                        },
+                        "offerRedeemUrl": {
+                          "type": "string",
+                          "description": "Link where an OFFER is redeemed."
+                        },
+                        "offerTerms": {
+                          "type": "string",
+                          "description": "Terms and conditions of an OFFER."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "twitch"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": twitch"
+                        },
+                        "messageType": {
+                          "type": "string",
+                          "enum": [
+                            "message",
+                            "announcement"
+                          ],
+                          "description": "Plain chat message or highlighted announcement."
+                        },
+                        "announcementColor": {
+                          "type": "string",
+                          "enum": [
+                            "primary",
+                            "blue",
+                            "green",
+                            "orange",
+                            "purple"
+                          ],
+                          "description": "Colour of an announcement."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "dribbble"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": dribbble"
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title of the shot."
+                        },
+                        "team": {
+                          "type": "string",
+                          "description": "Dribbble team to post for. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "title"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "devto"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": devto"
+                        },
+                        "title": {
+                          "type": "string",
+                          "minLength": 2,
+                          "description": "Title of the article, 128 characters at most, spaces not counted."
+                        },
+                        "canonical": {
+                          "type": "string",
+                          "description": "Canonical link, when the article was first published elsewhere."
+                        },
+                        "organization": {
+                          "type": "string",
+                          "description": "DEV organization to publish under. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "number",
+                                "description": "Id of the tag"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "Name of the tag"
+                              }
+                            },
+                            "required": [
+                              "value",
+                              "label"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "maxItems": 4,
+                          "description": "Up to 4 DEV tags. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "title"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "hashnode"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": hashnode"
+                        },
+                        "title": {
+                          "type": "string",
+                          "minLength": 6,
+                          "description": "Title of the article, 6 characters at least."
+                        },
+                        "subtitle": {
+                          "type": "string",
+                          "description": "Subtitle of the article."
+                        },
+                        "canonical": {
+                          "type": "string",
+                          "description": "Canonical link, when the article was first published elsewhere."
+                        },
+                        "publication": {
+                          "type": "string",
+                          "description": "Hashnode blog to publish to. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        },
+                        "tags": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "string",
+                                "description": "The tag"
+                              },
+                              "label": {
+                                "type": "string",
+                                "description": "The tag again, as shown to readers"
+                              }
+                            },
+                            "required": [
+                              "value",
+                              "label"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Hashnode tags, at least one. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "title",
+                        "publication",
+                        "tags"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "listmonk"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": listmonk"
+                        },
+                        "subject": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Subject line of the email campaign."
+                        },
+                        "preview": {
+                          "type": "string",
+                          "description": "Preview text shown after the subject in inboxes."
+                        },
+                        "list": {
+                          "type": "string",
+                          "description": "Mailing list to send to. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        },
+                        "template": {
+                          "type": "string",
+                          "description": "Email template. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "subject",
+                        "list"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "lemmy"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": lemmy"
+                        },
+                        "subreddit": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "description": "Id of the community"
+                                  },
+                                  "subreddit": {
+                                    "type": "string",
+                                    "description": "Name of the community"
+                                  },
+                                  "title": {
+                                    "type": "string",
+                                    "minLength": 3,
+                                    "maxLength": 200,
+                                    "description": "Title of the post in that community, 3 to 200 characters"
+                                  },
+                                  "url": {
+                                    "type": "string",
+                                    "description": "Link to share, for a link post"
+                                  }
+                                },
+                                "required": [
+                                  "id",
+                                  "subreddit",
+                                  "title"
+                                ],
+                                "additionalProperties": false,
+                                "description": "One community and the post title there"
+                              }
+                            },
+                            "required": [
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Communities to post in, at least one. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "subreddit"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "wrapcast"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": wrapcast"
+                        },
+                        "subreddit": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "value": {
+                                "type": "object",
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "description": "Id of the channel"
+                                  }
+                                },
+                                "required": [
+                                  "id"
+                                ],
+                                "additionalProperties": false,
+                                "description": "One channel"
+                              }
+                            },
+                            "required": [
+                              "value"
+                            ],
+                            "additionalProperties": false
+                          },
+                          "description": "Farcaster channels to cast in. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "moltbook"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": moltbook"
+                        },
+                        "submolt": {
+                          "type": "string",
+                          "description": "Name of the submolt to post in. The general one when left out."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "skool"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": skool"
+                        },
+                        "group": {
+                          "type": "string",
+                          "description": "Skool group to post in. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "Category of the post in that group. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        },
+                        "title": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Title of the post."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "group",
+                        "label",
+                        "title"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "whop"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": whop"
+                        },
+                        "company": {
+                          "type": "string",
+                          "description": "Whop company. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        },
+                        "experience": {
+                          "type": "string",
+                          "description": "Forum of that company to post in. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        },
+                        "title": {
+                          "type": "string",
+                          "description": "Title of the forum post."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "company",
+                        "experience"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "mewe"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": mewe"
+                        },
+                        "postType": {
+                          "type": "string",
+                          "enum": [
+                            "timeline",
+                            "group"
+                          ],
+                          "description": "Post on the timeline or in a group."
+                        },
+                        "group": {
+                          "type": "string",
+                          "description": "Group to post in, needed for a group post. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                        }
+                      },
+                      "required": [
+                        "platform",
+                        "postType"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "tumblr"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": tumblr"
+                        },
+                        "title": {
+                          "type": "string",
+                          "maxLength": 4096,
+                          "description": "Title of the Tumblr post."
+                        },
+                        "link": {
+                          "type": "string",
+                          "description": "Link to share in the post."
+                        },
+                        "sourceUrl": {
+                          "type": "string",
+                          "description": "Link to the original source of the content."
+                        },
+                        "tags": {
+                          "type": "string",
+                          "maxLength": 4096,
+                          "description": "Tags, separated by commas."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "platform": {
+                          "type": "string",
+                          "enum": [
+                            "threads"
+                          ],
+                          "description": "Platform of the channel, as list_channels returns it in \"platform\": threads"
+                        },
+                        "made_with_ai": {
+                          "type": "boolean",
+                          "description": "True when the post was made with AI, so Threads shows its AI info label."
+                        }
+                      },
+                      "required": [
+                        "platform"
+                      ],
+                      "additionalProperties": false
+                    }
+                  ],
+                  "description": "Platform settings of this post: one object with \"platform\" set to the platform of the channel and the fields get_platform_post_rules lists for it. Leave out for a platform that takes no settings."
                 }
               },
               "required": [
@@ -187,22 +1224,23 @@
                 "date",
                 "shortLink",
                 "type",
-                "postsAndComments",
-                "settings"
-              ]
-            }
+                "postsAndComments"
+              ],
+              "additionalProperties": false
+            },
+            "description": "The posts to create: one item for each post on each channel"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "required": [
           "socialPost"
-        ]
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
       }
     },
     {
-      "name": "postsListTool",
-      "description": "\nList the organization's posts scheduled to be published between two dates (the same data as the \"List Posts\" API endpoint).\nReturns every post in the window whatever its state (scheduled, draft, published, errored).\n\"startDate\" and \"endDate\" are required (UTC) - to list all upcoming posts, pass a wide window (for example from now to a year ahead).\nEach item has an \"id\", its publish date, state, content, channel and current provider settings.\nPass \"includeAttachments\": true to also get each post's \"attachments\" (media already uploaded to Hookpost). Their \"path\" values can be passed straight to integrationSchedulePostTool as \"attachments\" to reuse the same media on another channel - do not re-upload them.\nPosts cannot be deleted through the Hookpost tools - if the user wants to delete a post, tell them to do it themselves in the Hookpost app; never offer to delete a post.\n",
+      "name": "list_posts",
+      "description": "Lists the posts of this Hookpost workspace whose publish date is between startDate and endDate (UTC), in every state: scheduled, draft, published or failed. Use this when the user asks what is planned or what went out, to find days with nothing scheduled, or to get the post id that update_post_settings needs. For every upcoming post, pass a window from now to a year ahead. Each post comes with its id, publish date, state, text, channel and current platform settings. Set includeAttachments to true to also get each post's media; those path values can be passed to create_post as attachments, so media already in Hookpost needs no new upload. It only reads. Posts cannot be deleted with these tools; the user deletes them in the Hookpost app.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -216,77 +1254,1067 @@
           },
           "customer": {
             "type": "string",
-            "description": "Optional customer (group) id to filter the channels by"
+            "description": "Optional. A customer group id from list_customer_groups; only posts on the channels of that group are returned."
           },
           "includeAttachments": {
             "type": "boolean",
-            "description": "Set to true to include the attachments of each post (needed to duplicate or mirror a post with its media)"
+            "description": "Optional. True to also return the media of each post, for example to repeat a post with its media on another channel. Left out, no media is returned."
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "required": [
           "startDate",
           "endDate"
-        ]
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
       }
     },
     {
-      "name": "postSettingsTool",
-      "description": "\nUpdate the provider settings of an existing post (scheduled or draft) that was NOT published yet.\nOnly the settings change - the content and the publish date stay exactly as they are.\nFind the post first (list your posts) and pass its \"id\" here.\nThe settings are merged into the existing ones, so only pass the keys you want to change; anything you don't pass stays as it is.\nThis relies on the integrationSchema tool [input:settings] to know which keys exist for the platform.\nIf validation fails, the result contains output.errors describing what to fix; the call can be retried with corrected parameters.\n",
+      "name": "update_post_settings",
+      "description": "Changes the platform settings of one existing post that has not been published yet (a draft or a scheduled post), for example its Pinterest board or YouTube title. Use this when the user wants to change such a setting on a post that already exists. Get the post id from list_posts and the settings of its platform from get_platform_post_rules; ids of Pinterest boards, Slack or Discord channels and WordPress post types, categories and tags come from list_pinterest_boards, list_slack_channels, list_discord_channels and list_wordpress_post_options. Only the settings you pass change, and their old values are overwritten; the text, the media and the publish date stay as they are. It cannot change a published post, edit text or dates, or delete a post. Returns the post id and its publish date, or output.errors saying what to fix.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "id": {
             "type": "string",
-            "description": "The \"id\" of the post to update its settings"
+            "description": "Id of the post to change, from list_posts (\"id\")"
           },
           "settings": {
-            "type": "array",
-            "description": "Settings keys to change, merged into the existing settings. This relies on the integrationSchema tool [input:settings]",
-            "items": {
-              "type": "object",
-              "properties": {
-                "key": {
-                  "type": "string",
-                  "description": "Name of the settings key to change"
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "x"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": x"
+                  },
+                  "who_can_reply_post": {
+                    "type": "string",
+                    "enum": [
+                      "everyone",
+                      "following",
+                      "mentionedUsers",
+                      "subscribers",
+                      "verified"
+                    ],
+                    "description": "Who can reply to the post. Needed for a normal post, not for an article."
+                  },
+                  "post_type": {
+                    "type": "string",
+                    "enum": [
+                      "post",
+                      "article"
+                    ],
+                    "description": "A normal post, or a long-form X article. A normal post when left out."
+                  },
+                  "article_title": {
+                    "type": "string",
+                    "description": "Title of the article. Needed when the post is an article."
+                  },
+                  "article_status": {
+                    "type": "string",
+                    "enum": [
+                      "draft",
+                      "published"
+                    ],
+                    "description": "For an article: keep it as a draft on X, or publish it. Needed when the post is an article."
+                  },
+                  "community": {
+                    "type": "string",
+                    "description": "Link of an X Community to post in, for example https://x.com/i/communities/123. Leave out to post on the timeline."
+                  },
+                  "made_with_ai": {
+                    "type": "boolean",
+                    "description": "True when the media was made with AI, so X labels it."
+                  },
+                  "paid_partnership": {
+                    "type": "boolean",
+                    "description": "True when the post is a paid partnership, so X labels it."
+                  }
                 },
-                "value": {
-                  "description": "New value of the key, always prefer the id then label if possible"
-                }
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
               },
-              "required": [
-                "key"
-              ],
-              "additionalProperties": false
-            }
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "linkedin",
+                      "linkedin-page"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": linkedin or linkedin-page"
+                  },
+                  "post_as_images_carousel": {
+                    "type": "boolean",
+                    "description": "True to post the attached images as one swipeable document (carousel)."
+                  },
+                  "carousel_name": {
+                    "type": "string",
+                    "description": "Title of that carousel document."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "instagram",
+                      "instagram-standalone"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": instagram or instagram-standalone"
+                  },
+                  "post_type": {
+                    "type": "string",
+                    "enum": [
+                      "post",
+                      "story"
+                    ],
+                    "description": "Feed post (a reel for a video) or story."
+                  },
+                  "is_trial_reel": {
+                    "type": "boolean",
+                    "description": "True to show the reel to non-followers first, before followers see it."
+                  },
+                  "graduation_strategy": {
+                    "type": "string",
+                    "enum": [
+                      "MANUAL",
+                      "SS_PERFORMANCE"
+                    ],
+                    "description": "For such a reel: share it with followers by hand (MANUAL) or when it performs well (SS_PERFORMANCE)."
+                  },
+                  "is_ai_generated": {
+                    "type": "boolean",
+                    "description": "True when the media was made with AI, so Instagram labels it."
+                  },
+                  "collaborators": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": {
+                          "type": "string",
+                          "description": "The username, without the @"
+                        }
+                      },
+                      "required": [
+                        "label"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 3,
+                    "description": "Instagram usernames to invite as collaborators, without the @."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "facebook"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": facebook"
+                  },
+                  "post_type": {
+                    "type": "string",
+                    "enum": [
+                      "post",
+                      "story"
+                    ],
+                    "description": "Page post or story. A post when left out."
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "Link to attach to the post, shown as a preview card."
+                  },
+                  "text_format_preset_id": {
+                    "type": "string",
+                    "description": "Id of a Facebook coloured background for a short text-only post (130 characters at most)."
+                  },
+                  "made_with_ai": {
+                    "type": "boolean",
+                    "description": "True when the text or pictures were made with AI, so Facebook labels the post. Text, link and photo posts only; ignored for videos and stories."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "youtube"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": youtube"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 2,
+                    "maxLength": 100,
+                    "description": "Title of the video, 2 to 100 characters."
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "public",
+                      "private",
+                      "unlisted"
+                    ],
+                    "description": "Who can watch the video."
+                  },
+                  "selfDeclaredMadeForKids": {
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no"
+                    ],
+                    "description": "Whether the video is made for children, as YouTube asks."
+                  },
+                  "made_with_ai": {
+                    "type": "boolean",
+                    "description": "True when the video has realistic AI-made or altered content, so YouTube shows its altered or synthetic content label. Not needed for animation or clearly unrealistic content."
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "description": "The tag"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "The tag again, as shown to readers"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "label"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Video tags; each tag goes in both value and label. 500 characters in all at most."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "tiktok",
+                      "tiktok-business"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": tiktok or tiktok-business"
+                  },
+                  "content_posting_method": {
+                    "type": "string",
+                    "enum": [
+                      "DIRECT_POST",
+                      "UPLOAD"
+                    ],
+                    "description": "DIRECT_POST publishes on TikTok; UPLOAD sends the video to the TikTok inbox for the user to finish in the app."
+                  },
+                  "privacy_level": {
+                    "type": "string",
+                    "enum": [
+                      "PUBLIC_TO_EVERYONE",
+                      "MUTUAL_FOLLOW_FRIENDS",
+                      "FOLLOWER_OF_CREATOR",
+                      "SELF_ONLY"
+                    ],
+                    "description": "Who can see the post. Needed for a direct post, and only the user can choose it: ask them."
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 90,
+                    "description": "Title of a photo post, 90 characters at most."
+                  },
+                  "comment": {
+                    "type": "boolean",
+                    "description": "True to allow comments."
+                  },
+                  "duet": {
+                    "type": "boolean",
+                    "description": "True to allow duets."
+                  },
+                  "stitch": {
+                    "type": "boolean",
+                    "description": "True to allow stitches."
+                  },
+                  "autoAddMusic": {
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no"
+                    ],
+                    "description": "For a photo post: let TikTok add music."
+                  },
+                  "disclose": {
+                    "type": "boolean",
+                    "description": "True when the post promotes a brand, product or service."
+                  },
+                  "brand_organic_toggle": {
+                    "type": "boolean",
+                    "description": "True when it promotes the user's own brand."
+                  },
+                  "brand_content_toggle": {
+                    "type": "boolean",
+                    "description": "True when it is paid content for a third party; it cannot then be private."
+                  },
+                  "video_made_with_ai": {
+                    "type": "boolean",
+                    "description": "True when the video was made with AI, so TikTok labels it."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "pinterest"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": pinterest"
+                  },
+                  "board": {
+                    "type": "string",
+                    "description": "Id of the board to pin to, from list_pinterest_boards."
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Title of the pin, 100 characters at most."
+                  },
+                  "link": {
+                    "type": "string",
+                    "description": "Link the pin opens."
+                  },
+                  "dominant_color": {
+                    "type": "string",
+                    "description": "Background colour of the pin as a hex code, for example #6E4A3C."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "discord"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": discord"
+                  },
+                  "channel": {
+                    "type": "string",
+                    "description": "Id of the Discord channel to post in, from list_discord_channels."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "slack"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": slack"
+                  },
+                  "channel": {
+                    "type": "string",
+                    "description": "Id of the Slack channel to post in, from list_slack_channels."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "wordpress"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": wordpress"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 2,
+                    "description": "Title of the WordPress post."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "Post type id, from list_wordpress_post_options (postTypes), usually posts."
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "publish",
+                      "draft",
+                      "pending",
+                      "private"
+                    ],
+                    "description": "Status the post gets in WordPress. Published when left out."
+                  },
+                  "categories": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "description": "An id from the list"
+                    },
+                    "description": "Category ids, from list_wordpress_post_options (categories)."
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "number",
+                      "description": "An id from the list"
+                    },
+                    "description": "Tag ids, from list_wordpress_post_options (tags)."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "gmb"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": gmb"
+                  },
+                  "topicType": {
+                    "type": "string",
+                    "enum": [
+                      "STANDARD",
+                      "EVENT",
+                      "OFFER"
+                    ],
+                    "description": "Kind of Google Business Profile update. STANDARD when left out."
+                  },
+                  "callToActionType": {
+                    "type": "string",
+                    "enum": [
+                      "NONE",
+                      "BOOK",
+                      "ORDER",
+                      "SHOP",
+                      "LEARN_MORE",
+                      "SIGN_UP",
+                      "GET_OFFER",
+                      "CALL"
+                    ],
+                    "description": "Button shown on the update."
+                  },
+                  "callToActionUrl": {
+                    "type": "string",
+                    "description": "Link of that button. Needed for every button except NONE and CALL."
+                  },
+                  "eventTitle": {
+                    "type": "string",
+                    "description": "Title of the event. Needed for an EVENT update."
+                  },
+                  "eventStartDate": {
+                    "type": "string",
+                    "description": "Event start date, YYYY-MM-DD."
+                  },
+                  "eventEndDate": {
+                    "type": "string",
+                    "description": "Event end date, YYYY-MM-DD."
+                  },
+                  "eventStartTime": {
+                    "type": "string",
+                    "description": "Event start time, HH:MM."
+                  },
+                  "eventEndTime": {
+                    "type": "string",
+                    "description": "Event end time, HH:MM."
+                  },
+                  "offerCouponCode": {
+                    "type": "string",
+                    "description": "Coupon code of an OFFER update."
+                  },
+                  "offerRedeemUrl": {
+                    "type": "string",
+                    "description": "Link where an OFFER is redeemed."
+                  },
+                  "offerTerms": {
+                    "type": "string",
+                    "description": "Terms and conditions of an OFFER."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "twitch"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": twitch"
+                  },
+                  "messageType": {
+                    "type": "string",
+                    "enum": [
+                      "message",
+                      "announcement"
+                    ],
+                    "description": "Plain chat message or highlighted announcement."
+                  },
+                  "announcementColor": {
+                    "type": "string",
+                    "enum": [
+                      "primary",
+                      "blue",
+                      "green",
+                      "orange",
+                      "purple"
+                    ],
+                    "description": "Colour of an announcement."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "dribbble"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": dribbble"
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Title of the shot."
+                  },
+                  "team": {
+                    "type": "string",
+                    "description": "Dribbble team to post for. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "devto"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": devto"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 2,
+                    "description": "Title of the article, 128 characters at most, spaces not counted."
+                  },
+                  "canonical": {
+                    "type": "string",
+                    "description": "Canonical link, when the article was first published elsewhere."
+                  },
+                  "organization": {
+                    "type": "string",
+                    "description": "DEV organization to publish under. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "number",
+                          "description": "Id of the tag"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "Name of the tag"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "label"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "maxItems": 4,
+                    "description": "Up to 4 DEV tags. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "hashnode"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": hashnode"
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 6,
+                    "description": "Title of the article, 6 characters at least."
+                  },
+                  "subtitle": {
+                    "type": "string",
+                    "description": "Subtitle of the article."
+                  },
+                  "canonical": {
+                    "type": "string",
+                    "description": "Canonical link, when the article was first published elsewhere."
+                  },
+                  "publication": {
+                    "type": "string",
+                    "description": "Hashnode blog to publish to. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "description": "The tag"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "The tag again, as shown to readers"
+                        }
+                      },
+                      "required": [
+                        "value",
+                        "label"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Hashnode tags, at least one. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "listmonk"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": listmonk"
+                  },
+                  "subject": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Subject line of the email campaign."
+                  },
+                  "preview": {
+                    "type": "string",
+                    "description": "Preview text shown after the subject in inboxes."
+                  },
+                  "list": {
+                    "type": "string",
+                    "description": "Mailing list to send to. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  },
+                  "template": {
+                    "type": "string",
+                    "description": "Email template. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "lemmy"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": lemmy"
+                  },
+                  "subreddit": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Id of the community"
+                            },
+                            "subreddit": {
+                              "type": "string",
+                              "description": "Name of the community"
+                            },
+                            "title": {
+                              "type": "string",
+                              "minLength": 3,
+                              "maxLength": 200,
+                              "description": "Title of the post in that community, 3 to 200 characters"
+                            },
+                            "url": {
+                              "type": "string",
+                              "description": "Link to share, for a link post"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "subreddit",
+                            "title"
+                          ],
+                          "additionalProperties": false,
+                          "description": "One community and the post title there"
+                        }
+                      },
+                      "required": [
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Communities to post in, at least one. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "wrapcast"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": wrapcast"
+                  },
+                  "subreddit": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "description": "Id of the channel"
+                            }
+                          },
+                          "required": [
+                            "id"
+                          ],
+                          "additionalProperties": false,
+                          "description": "One channel"
+                        }
+                      },
+                      "required": [
+                        "value"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "description": "Farcaster channels to cast in. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "moltbook"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": moltbook"
+                  },
+                  "submolt": {
+                    "type": "string",
+                    "description": "Name of the submolt to post in. The general one when left out."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "skool"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": skool"
+                  },
+                  "group": {
+                    "type": "string",
+                    "description": "Skool group to post in. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Category of the post in that group. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Title of the post."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "whop"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": whop"
+                  },
+                  "company": {
+                    "type": "string",
+                    "description": "Whop company. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  },
+                  "experience": {
+                    "type": "string",
+                    "description": "Forum of that company to post in. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  },
+                  "title": {
+                    "type": "string",
+                    "description": "Title of the forum post."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "mewe"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": mewe"
+                  },
+                  "postType": {
+                    "type": "string",
+                    "enum": [
+                      "timeline",
+                      "group"
+                    ],
+                    "description": "Post on the timeline or in a group."
+                  },
+                  "group": {
+                    "type": "string",
+                    "description": "Group to post in, needed for a group post. These tools do not list its values; the user picks it in the Hookpost post editor, or the post is saved as a draft without it."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "tumblr"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": tumblr"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 4096,
+                    "description": "Title of the Tumblr post."
+                  },
+                  "link": {
+                    "type": "string",
+                    "description": "Link to share in the post."
+                  },
+                  "sourceUrl": {
+                    "type": "string",
+                    "description": "Link to the original source of the content."
+                  },
+                  "tags": {
+                    "type": "string",
+                    "maxLength": 4096,
+                    "description": "Tags, separated by commas."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "platform": {
+                    "type": "string",
+                    "enum": [
+                      "threads"
+                    ],
+                    "description": "Platform of the channel, as list_channels returns it in \"platform\": threads"
+                  },
+                  "made_with_ai": {
+                    "type": "boolean",
+                    "description": "True when the post was made with AI, so Threads shows its AI info label."
+                  }
+                },
+                "required": [
+                  "platform"
+                ],
+                "additionalProperties": false
+              }
+            ],
+            "description": "The settings to change: one object with \"platform\" set to the platform of the post's channel and only the fields that change, as get_platform_post_rules lists them. Fields left out keep their value."
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "required": [
           "id",
           "settings"
-        ]
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
       }
     },
     {
-      "name": "uploadFromUrlTool",
-      "description": "Upload a remote image or video into the media library from a public URL.\nUse this before scheduling a post when the user provides an external media URL (not already hosted on our domain),\nso the attachment passes the upload-domain validation. Returns the hosted media { id, path } to use as an attachment, or { error } on failure.",
+      "name": "update_post_media",
+      "description": "Replaces the images or videos of one existing post that has not been published yet (a draft or a scheduled post). Use this when the user wants to swap, add or remove the media of such a post without creating it again. Get the post id from list_posts (set includeAttachments to see the current media) and new media URLs from upload_media_from_url. The list you pass is the full new list: media left out is removed, and an empty list removes all media. Only the media of the main post changes; its text, settings, publish date and follow-up comments stay as they are. Returns the post id and its publish date, or output.errors saying what to fix.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Id of the post to change, from list_posts (\"id\")"
+          },
+          "attachments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "The full new list of media URLs in Hookpost, in order, for example the path values from upload_media_from_url or list_posts. An empty list removes all media."
+          }
+        },
+        "required": [
+          "id",
+          "attachments"
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
+      }
+    },
+    {
+      "name": "upload_media_from_url",
+      "description": "Copies one image or video from a public URL into this workspace's Hookpost media library and returns its id and path. Use this when the user gives a link to an image or video they want in a post, then pass the returned path to create_post as an attachment: a post only takes media stored in Hookpost. Not needed for media that list_posts already returned with a path. The file type is read from the file itself; an unsupported type, a file over the size limit or a URL that cannot be fetched returns error and stores nothing. Each call stores a new copy.",
       "inputSchema": {
         "type": "object",
         "properties": {
           "url": {
             "type": "string",
             "format": "uri",
-            "description": "The public URL of the image or video to upload"
+            "description": "Public http or https URL of the image or video to copy, for example https://example.com/photo.jpg"
           }
         },
-        "additionalProperties": false,
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "required": [
           "url"
-        ]
+        ],
+        "additionalProperties": false,
+        "$schema": "http://json-schema.org/draft-07/schema#"
       }
     }
   ]

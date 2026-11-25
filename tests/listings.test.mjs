@@ -23,15 +23,21 @@ const readJson = (path) => JSON.parse(read(path));
 
 const MCP_URL = 'https://hookpost.hookstep.in/api/mcp';
 const MCP_OAUTH_URL = 'https://hookpost.hookstep.in/mcp-oauth';
+// The tools /mcp-oauth lists, the endpoint the M365 connector and ChatGPT use.
 const TOOL_NAMES = [
-  'groupList',
-  'integrationList',
-  'integrationSchema',
-  'triggerTool',
-  'integrationSchedulePostTool',
-  'postsListTool',
-  'postSettingsTool',
-  'uploadFromUrlTool',
+  'list_channels',
+  'create_channel_connect_link',
+  'list_customer_groups',
+  'get_platform_post_rules',
+  'list_pinterest_boards',
+  'list_slack_channels',
+  'list_discord_channels',
+  'list_wordpress_post_options',
+  'create_post',
+  'list_posts',
+  'update_post_settings',
+  'update_post_media',
+  'upload_media_from_url',
 ];
 
 // Minimal PNG reader: size, colour type and decoded RGBA pixels (8-bit RGBA only).
@@ -263,10 +269,11 @@ describe('Windsurf and the MCP Registry', () => {
   });
 });
 
-// Integration: compares toolDescription.json with the live server. Needs a
-// Hookpost API key, so it is skipped unless HOOKPOST_API_KEY is set.
+// Integration: compares toolDescription.json with the live /mcp-oauth server
+// (the URL in the M365 manifest). /mcp-oauth also takes a workspace API key as
+// the bearer token, so it is skipped unless HOOKPOST_API_KEY is set.
 test('toolDescription.json matches the live tools/list', { skip: !process.env.HOOKPOST_API_KEY }, async () => {
-  const response = await fetch(MCP_URL, {
+  const response = await fetch(MCP_OAUTH_URL, {
     method: 'POST',
     headers: {
       authorization: `Bearer ${process.env.HOOKPOST_API_KEY}`,
